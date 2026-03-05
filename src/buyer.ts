@@ -7,7 +7,7 @@ const SELLER_URL = process.env.SELLER_URL || 'http://localhost:3000'
 
 async function main() {
   const payments = Payments.getInstance({
-    nvmApiKey: process.env.NVM_API_KEY!,
+    nvmApiKey: process.env.BUYER_API_KEY!,
     environment: 'sandbox'
   })
 
