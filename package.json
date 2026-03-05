@@ -6,6 +6,7 @@
   "scripts": {
     "register": "node --loader ts-node/esm src/register-agent.ts",
     "start": "node --loader ts-node/esm src/seller.ts",
+    "buy": "node --loader ts-node/esm src/buyer.ts",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
