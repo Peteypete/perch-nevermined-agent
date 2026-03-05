@@ -20,13 +20,10 @@ async function main() {
     },
     {
       name: 'Starter Plan',
-      description: '100 requests for $10',
+      description: '100 requests for free',
       dateCreated: new Date()
     },
-    payments.plans.getFiatPriceConfig(
-      1000n, // $10.00 in cents
-      process.env.BUILDER_ADDRESS! as `0x${string}`
-    ),
+    payments.plans.getFreePriceConfig(),
     payments.plans.getFixedCreditsConfig(100n, 1n)
   )
 
