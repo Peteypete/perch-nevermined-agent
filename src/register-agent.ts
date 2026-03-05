@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { Payments } from '@nevermined-io/payments'
 
 const USDC_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e'
@@ -15,7 +16,10 @@ async function main() {
       tags: ['ai', 'payments'],
       dateCreated: new Date()
     },
-    { endpoints: [{ POST: 'https://your-api.com/query' }] },
+    {
+      endpoints: [{ POST: 'https://your-api.com/query' }],
+      agentDefinitionUrl: 'https://your-api.com/openapi.json'
+    },
     {
       name: 'Starter Plan',
       description: '100 requests for $10',
@@ -24,7 +28,7 @@ async function main() {
     payments.plans.getERC20PriceConfig(
       10_000_000n,
       USDC_ADDRESS,
-      process.env.BUILDER_ADDRESS!
+      process.env.BUILDER_ADDRESS! as `0x${string}`
     ),
     payments.plans.getFixedCreditsConfig(100n, 1n)
   )
