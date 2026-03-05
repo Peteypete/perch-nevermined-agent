@@ -9,26 +9,30 @@ async function main() {
 
   const { agentId, planId } = await payments.agents.registerAgentAndPlan(
     {
-      name: 'My AI Assistant',
-      description: 'A paid service',
-      tags: ['ai', 'payments'],
+      name: 'Perch Tax & Finance Expert',
+      description: 'AI-powered real estate tax analysis for STR portfolios. Services: property NOI, federal tax projection, QBI deduction analysis, expense classification, portfolio reports, entity structure recommendations.',
+      tags: ['ai', 'tax', 'real-estate', 'str', 'finance', 'qbi'],
       dateCreated: new Date()
     },
     {
-      endpoints: [{ POST: 'https://your-api.com/query' }],
-      agentDefinitionUrl: 'https://your-api.com/openapi.json'
+      endpoints: [{ POST: `${process.env.AGENT_URL || 'http://localhost:3000'}/api/analyze` }],
+      agentDefinitionUrl: `${process.env.AGENT_URL || 'http://localhost:3000'}/api/services`,
     },
     {
-      name: 'Starter Plan',
-      description: '100 requests for free',
+      name: 'Perch Analysis Credits',
+      description: '100 analysis credits — free for hackathon. Services cost 1-5 credits each.',
       dateCreated: new Date()
     },
     payments.plans.getFreePriceConfig(),
     payments.plans.getFixedCreditsConfig(100n, 1n)
   )
 
+  console.log(`Agent registered successfully!`)
   console.log(`Agent ID: ${agentId}`)
-  console.log(`Plan ID: ${planId}`)
+  console.log(`Plan ID:  ${planId}`)
+  console.log(`\nAdd these to your .env:`)
+  console.log(`NVM_AGENT_ID=${agentId}`)
+  console.log(`NVM_PLAN_ID=${planId}`)
 }
 
 main().catch(console.error)

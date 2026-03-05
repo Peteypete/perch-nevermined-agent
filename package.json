@@ -7,6 +7,7 @@
     "register": "node --loader ts-node/esm src/register-agent.ts",
     "start": "node --loader ts-node/esm src/seller.ts",
     "buy": "node --loader ts-node/esm src/buyer.ts",
+    "seed": "node --loader ts-node/esm src/firebase/seed.ts",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,14 +15,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
     "@nevermined-io/payments": "^1.1.6",
     "@types/node": "^25.3.3",
+    "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "firebase-admin": "^13.7.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6"
   }
 }
