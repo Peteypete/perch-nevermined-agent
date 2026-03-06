@@ -218,7 +218,7 @@ export function createConnectRouter(): Router {
       endpoint: url?.trim() || '',
       creditsPerPlan: 100,
       buyType: buyType === 'direct' ? 'direct' : 'nevermined',
-      serviceCatalog: [{ query_type: 'property_noi', credits: 2, description: 'Property NOI analysis' }],
+      serviceCatalog: [{ query_type: 'expense_classify', credits: 1, description: 'Classify an expense' }],
     }
 
     try {

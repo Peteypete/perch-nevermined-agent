@@ -95,12 +95,12 @@ export async function executePurchase(
       return record
     }
 
+    const body = await resp.text()
     console.log(`[Purchase] Got ${resp.status} from ${usedEndpoint}`)
+    if (resp.status >= 400) console.log(`[Purchase] Response body:`, body.slice(0, 500))
 
     record.responseStatus = resp.status
     record.responseTimeMs = Date.now() - start
-
-    const body = await resp.text()
     record.responsePreview = body.slice(0, 200)
 
     let parsed: any = null
@@ -147,10 +147,12 @@ export function buildQuery(agent: DiscoveredAgent): Record<string, unknown> {
   // If we have a service catalog, pick the cheapest service
   if (agent.serviceCatalog.length > 0) {
     const cheapest = [...agent.serviceCatalog].sort((a, b) => a.credits - b.credits)[0]
-    return {
-      query_type: cheapest.query_type,
-      params: {},
+    const defaultParams: Record<string, unknown> = {}
+    if (cheapest.query_type === 'expense_classify') {
+      defaultParams.description = 'HVAC repair'
+      defaultParams.amount = 450
     }
+    return { query_type: cheapest.query_type, params: defaultParams }
   }
 
   // Generic query for unknown agents
