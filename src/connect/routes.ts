@@ -60,7 +60,7 @@ function saveAgent(submission: AgentSubmission): SubmittedAgent {
   const buyType = submission.buyType || (submission.planId && submission.agentId ? 'nevermined' : 'direct')
   const agent: SubmittedAgent = {
     id,
-    name: submission.name.trim(),
+    name: submission.name?.trim() || url,
     planId: submission.planId?.trim() || '',
     agentId: submission.agentId?.trim() || url, // use URL as unique key for direct agents
     url,
@@ -145,7 +145,6 @@ export function createConnectRouter(): Router {
 
     // Validate
     const errors: string[] = []
-    if (!body.name?.trim()) errors.push('name is required')
     if (!body.url?.trim()) errors.push('url is required')
     if (!Array.isArray(body.services) || body.services.length === 0) {
       errors.push('at least one service is required')
