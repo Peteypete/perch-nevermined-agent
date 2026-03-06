@@ -123,7 +123,7 @@
               <img src="/img/nevermined-logo.png" alt="Nevermined" class="h-5 opacity-40">
             </div>
           </div>
-          <div id="agents-panel" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div id="agents-panel" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           </div>
         </section>
 
@@ -249,10 +249,14 @@
 
     // Agent slot definitions
     const AGENT_SLOTS = [
-      { role: 'tax',      name: 'Tallyfor AI',     icon: '&#128200;', color: 'perch',  keywords: ['tax','finance','tallyfor','accounting'] },
-      { role: 'cleaning', name: 'Cleaning Agent',   icon: '&#10024;',  color: 'tally',  keywords: ['clean','turnover','housekeep','maid'] },
-      { role: 'payment',  name: 'Payment Agent',    icon: '&#128179;', color: 'coral',  keywords: ['payment','collect','payout','invoice','billing'] },
-      { role: 'tours',    name: 'Tours Agent',      icon: '&#127758;', color: 'amber',  keywords: ['tour','experience','activity','concierge','local'] },
+      { role: 'tax',       name: 'Tallyfor AI',      icon: '&#128200;', color: 'perch',  keywords: ['tax','finance','tallyfor','accounting'] },
+      { role: 'cleaning',  name: 'Cleaning Agent',    icon: '&#10024;',  color: 'tally',  keywords: ['clean','turnover','housekeep','maid'] },
+      { role: 'payment',   name: 'Payment Agent',     icon: '&#128179;', color: 'coral',  keywords: ['payment','collect','payout','invoice','billing'] },
+      { role: 'tours',     name: 'Tours Agent',       icon: '&#127758;', color: 'amber',  keywords: ['tour','experience','activity','concierge','local'] },
+      { role: 'insurance', name: 'Insurance Agent',   icon: '&#128737;', color: 'sand',   keywords: ['insur','liability','coverage','policy','claim'] },
+      { role: 'ads',       name: 'ZeroClick',         icon: '&#9889;',   color: 'tally',  keywords: ['zeroclick','ad','advertis','promote','marketing'] },
+      { role: 'scraping',  name: 'Apify',             icon: '&#128269;', color: 'perch',  keywords: ['apify','scrape','crawl','web data','extract'] },
+      { role: 'pricing',   name: 'Dynamic Pricing',   icon: '&#128178;', color: 'coral',  keywords: ['pric','revenue manage','dynamic','rate','yield'] },
     ]
 
     // Simulated event templates
@@ -283,17 +287,45 @@
         'BBQ Pit Tour: 4.8 stars review from {prop} guest',
         'SXSW package available: Austin Music Crawl $65',
       ]},
+      { type: 'insurance', agent: 'InsureStay AI', msgs: [
+        'Liability coverage verified for {prop} — $1M policy active',
+        'Guest damage claim filed for {prop} — $320 reimbursement pending',
+        'Annual STR policy renewal: {prop} — $1,850/yr (12% below market)',
+        'Weather alert: flood coverage confirmed for {prop}',
+      ]},
+      { type: 'ads', agent: 'ZeroClick', msgs: [
+        'AI ad placement: {prop} listing enriched with local dining context',
+        'Reasoning-time ad matched: "best Austin STR" — 3.2x CTR lift',
+        'Brand partnership: {prop} featured in weekend getaway recommendations',
+        'Ad revenue: $127 earned from contextual placements this week',
+      ]},
+      { type: 'scraping', agent: 'Apify', msgs: [
+        'Scraped 847 competitor listings — {prop} priced 8% below median',
+        'Market data updated: Austin STR occupancy trending up 3.1%',
+        'Review sentiment analysis: {prop} — 94% positive (142 reviews)',
+        'New listing alert: 3 new competitors within 0.5mi of {prop}',
+      ]},
+      { type: 'pricing', agent: 'RateGenius AI', msgs: [
+        'Dynamic rate adjustment: {prop} $225 → $289 for SXSW week',
+        'Weekend premium applied: {prop} +18% for Fri-Sun',
+        'Last-minute discount: {prop} — $159 (fills 2-day gap)',
+        'Revenue forecast: {prop} on track for $4,800 this month',
+      ]},
     ]
 
     const PROP_NAMES = ['SoCo Modern Loft','Domain Studio','Zilker Cottage','East Side Bungalow','Mueller Park Flat']
 
     const TYPE_COLORS = {
-      tax:     'text-perch-400',
-      cleaning:'text-tally-400',
-      payment: 'text-coral-400',
-      tours:   'text-amber-400',
-      booking: 'text-purple-400',
-      system:  'text-sand-500',
+      tax:       'text-perch-400',
+      cleaning:  'text-tally-400',
+      payment:   'text-coral-400',
+      tours:     'text-amber-400',
+      insurance: 'text-violet-400',
+      ads:       'text-yellow-400',
+      scraping:  'text-green-400',
+      pricing:   'text-pink-400',
+      booking:   'text-purple-400',
+      system:    'text-sand-500',
     }
 
     // ========================================================================
