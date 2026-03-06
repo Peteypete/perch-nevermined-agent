@@ -85,7 +85,25 @@
   <section class="max-w-2xl mx-auto -mt-8 relative z-20 px-6 mb-16">
     <div class="bg-white rounded-2xl shadow-xl border border-sand-200 p-8">
       <h3 class="text-xl font-bold text-gray-900 mb-1">Submit Your Agent</h3>
-      <p class="text-sm text-gray-500 mb-6">Drop in your details and Perch will start buying from you within seconds.</p>
+      <p class="text-sm text-gray-500 mb-6">Paste your agent info below or fill out the form manually.</p>
+
+      <!-- Quick Paste Zone -->
+      <div id="paste-zone" class="mb-6 relative">
+        <textarea id="paste-input" rows="5" placeholder="Paste your agent info here, e.g.:
+
+AgentBroker — Research Intelligence Broker
+Plan ID: did:nv:19855102282572468929...
+Agent ID: did:nv:38617482224351977309...
+URL: https://my-agent.up.railway.app
+Services: /search (1cr), /google (1cr), /summarize (2cr)" class="w-full px-4 py-3 rounded-xl border-2 border-dashed border-perch-300 bg-perch-50/50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm mono transition-all resize-none placeholder:text-gray-400"></textarea>
+        <button type="button" id="parse-btn" class="absolute bottom-3 right-3 px-4 py-1.5 rounded-lg bg-perch-600 text-white text-xs font-semibold hover:bg-perch-500 transition-all shadow-md">Parse &amp; Fill</button>
+        <div id="parse-feedback" class="hidden mt-2 text-sm font-medium fade-in"></div>
+      </div>
+
+      <div class="relative mb-6">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-sand-200"></div></div>
+        <div class="relative flex justify-center"><span class="bg-white px-3 text-xs text-gray-400 uppercase tracking-wider">or fill manually</span></div>
+      </div>
 
       <div id="success-banner" class="hidden mb-6 p-4 rounded-lg bg-perch-50 border border-perch-200 text-perch-800 text-sm font-medium fade-in"></div>
       <div id="error-banner" class="hidden mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm font-medium fade-in"></div>
@@ -164,6 +182,92 @@
 
 <script>
 const API = '/api/agents';
+
+// ============================================================================
+// Quick Paste Parser
+// ============================================================================
+
+function parseAgentBlob(text) {
+  const result = { name: '', planId: '', agentId: '', url: '', services: '', submitterName: '', description: '' };
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+  for (const line of lines) {
+    // Plan ID
+    const planMatch = line.match(/plan\s*id\s*[:=]\s*(did:nv:\S+)/i) || line.match(/(did:nv:\S+).*plan/i);
+    if (planMatch && !result.planId) { result.planId = planMatch[1]; continue; }
+
+    // Agent ID
+    const agentMatch = line.match(/agent\s*id\s*[:=]\s*(did:nv:\S+)/i) || line.match(/(did:nv:\S+).*agent/i);
+    if (agentMatch && !result.agentId) { result.agentId = agentMatch[1]; continue; }
+
+    // URL
+    const urlMatch = line.match(/(?:url|endpoint|server|host)\s*[:=]\s*(https?:\/\/\S+)/i) || line.match(/(https?:\/\/\S+)/i);
+    if (urlMatch && !result.url && !line.match(/agent\s*card/i)) { result.url = urlMatch[1].replace(/[,;]+$/, ''); continue; }
+
+    // Services
+    const svcMatch = line.match(/services?\s*[:=]\s*(.+)/i);
+    if (svcMatch) { result.services = svcMatch[1]; continue; }
+
+    // If line has /endpoint (Ncr) patterns, treat as services
+    if (/\/\w+\s*\(\d+\s*cr/i.test(line) && !result.services) { result.services = line; continue; }
+
+    // Name — first line that doesn't match any pattern above and isn't empty
+    if (!result.name && line.length > 2 && !line.match(/^(plan|agent|url|service|endpoint|server)/i)) {
+      // Strip leading emoji or special chars
+      result.name = line.replace(/^[\s:🤖🔧💡🚀⚡️]+/, '').trim();
+      continue;
+    }
+  }
+
+  return result;
+}
+
+document.getElementById('parse-btn').addEventListener('click', () => {
+  const text = document.getElementById('paste-input').value.trim();
+  const feedback = document.getElementById('parse-feedback');
+
+  if (!text) {
+    feedback.className = 'mt-2 text-sm font-medium fade-in text-red-600';
+    feedback.textContent = 'Paste your agent info first!';
+    feedback.classList.remove('hidden');
+    return;
+  }
+
+  const parsed = parseAgentBlob(text);
+  let filled = 0;
+
+  if (parsed.name) { document.getElementById('f-name').value = parsed.name; filled++; }
+  if (parsed.planId) { document.getElementById('f-planId').value = parsed.planId; filled++; }
+  if (parsed.agentId) { document.getElementById('f-agentId').value = parsed.agentId; filled++; }
+  if (parsed.url) { document.getElementById('f-url').value = parsed.url; filled++; }
+  if (parsed.services) { document.getElementById('f-services').value = parsed.services; filled++; }
+
+  if (filled >= 3) {
+    feedback.className = 'mt-2 text-sm font-medium fade-in text-perch-700';
+    feedback.innerHTML = `Parsed ${filled} fields! Review below and hit <strong>Submit</strong>.`;
+    // Highlight filled fields briefly
+    ['f-name','f-planId','f-agentId','f-url','f-services'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el.value) {
+        el.classList.add('ring-2', 'ring-perch-400', 'border-perch-400');
+        setTimeout(() => el.classList.remove('ring-2', 'ring-perch-400', 'border-perch-400'), 2000);
+      }
+    });
+  } else {
+    feedback.className = 'mt-2 text-sm font-medium fade-in text-amber-600';
+    feedback.textContent = `Only parsed ${filled} field${filled !== 1 ? 's' : ''}. Fill in the rest manually.`;
+  }
+  feedback.classList.remove('hidden');
+});
+
+// Also auto-parse on paste into the textarea
+document.getElementById('paste-input').addEventListener('paste', () => {
+  setTimeout(() => document.getElementById('parse-btn').click(), 100);
+});
+
+// ============================================================================
+// Services Parser & Form Submit
+// ============================================================================
 
 // Parse services string: "/search (1cr), /google (1cr)" → [{path, credits}]
 function parseServices(text) {
