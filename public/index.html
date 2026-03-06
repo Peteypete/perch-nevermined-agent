@@ -217,7 +217,7 @@
             </div>
             <div>
               <label class="block text-xs font-medium text-gray-500 mb-1">Parameters</label>
-              <input id="query-params" class="w-full border border-sand-200 rounded-lg px-3 py-2 text-sm bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-transparent" placeholder='{"property_id":"prop-01"}' />
+              <textarea id="query-params" rows="4" class="w-full border border-sand-200 rounded-lg px-3 py-2 text-sm bg-sand-50 mono focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-transparent" placeholder='{"property_id":"prop-01"}'></textarea>
             </div>
           </div>
           <button onclick="runAnalysis()" id="run-btn" class="px-5 py-2 bg-perch-600 hover:bg-perch-700 text-white text-sm font-medium rounded-lg transition shadow-sm">
@@ -385,7 +385,26 @@
     // Analysis engine
     const paramDefaults = {
       property_noi: '{"property_id":"prop-01"}',
-      tax_projection: '{"owner_id":"owner-01"}',
+      tax_projection: JSON.stringify({
+        owner_id: "owner-01",
+        prior_year_return: {
+          taxYear: 2023,
+          filingStatus: "single",
+          w2Income: 95000,
+          businessIncome: 42000,
+          totalIncome: 137000,
+          adjustedGrossIncome: 132500,
+          deductionAmount: 14600,
+          taxableIncome: 117900,
+          totalTax: 22180,
+          totalPayments: 24000,
+          refundOrOwed: 1820,
+          qbiDeduction: 8400,
+          scheduleEIncome: 42000,
+          depreciationClaimed: 12000,
+          effectiveRate: 16.74
+        }
+      }, null, 2),
       qbi_analysis: '{"owner_id":"owner-01"}',
       expense_classify: '{"description":"Replaced HVAC unit","amount":4500}',
       portfolio_report: '{"owner_id":"owner-01"}',
@@ -432,6 +451,22 @@
         metrics.innerHTML = ''
         renderMetrics(metrics, queryType, d.data)
 
+        // YoY insights (tax_projection with prior year)
+        let insightsEl = document.getElementById('result-insights')
+        if (!insightsEl) {
+          insightsEl = document.createElement('div')
+          insightsEl.id = 'result-insights'
+          insightsEl.className = 'bg-amber-50 rounded-lg p-4 border border-amber-200 mt-4'
+          metrics.parentElement.insertBefore(insightsEl, metrics.nextSibling)
+        }
+        if (d.data?.yearOverYear?.insights?.length) {
+          insightsEl.classList.remove('hidden')
+          insightsEl.innerHTML = `<p class="text-xs font-medium text-amber-600 uppercase tracking-wider mb-2">Year-over-Year Insights</p>` +
+            d.data.yearOverYear.insights.map(i => `<p class="text-sm text-amber-900 mb-1">• ${i}</p>`).join('')
+        } else {
+          insightsEl.classList.add('hidden')
+        }
+
         // Narrative
         if (d.narrative) {
           document.getElementById('result-narrative').classList.remove('hidden')
@@ -465,11 +500,22 @@
         const d = data
         items = [
           ['W-2 Income', '$' + (d.taxProjection?.income?.w2 || 0).toLocaleString()],
-          ['STR Income', '$' + (d.taxProjection?.income?.str || 0).toLocaleString()],
-          ['Total AGI', '$' + (d.taxProjection?.income?.totalAGI || 0).toLocaleString()],
-          ['Federal Tax', '$' + (d.taxProjection?.federalTax?.beforeQBI?.totalTax || 0).toLocaleString()],
-          ['Effective Rate', (d.taxProjection?.federalTax?.beforeQBI?.effectiveRate || 0) + '%'],
+          ['STR Net Income', '$' + (d.taxProjection?.income?.strNet || 0).toLocaleString()],
+          ['Taxable Income', '$' + (d.taxProjection?.income?.taxableIncome || 0).toLocaleString()],
+          ['Federal Tax', '$' + (d.taxProjection?.summary?.estimatedTax || 0).toLocaleString()],
+          ['Effective Rate', (d.taxProjection?.summary?.effectiveRate || 0) + '%'],
+          ['QBI Savings', '$' + (d.taxProjection?.federalTax?.qbiSavings || 0).toLocaleString()],
         ]
+        if (d.yearOverYear) {
+          const yoy = d.yearOverYear.deltas
+          const taxChg = yoy?.totalTax?.change || 0
+          const rateChg = yoy?.effectiveRate?.change || 0
+          items.push(
+            ['PY Tax (' + (d.priorYear?.taxYear || 'PY') + ')', '$' + (d.priorYear?.totalTax || 0).toLocaleString()],
+            ['Tax Change', (taxChg >= 0 ? '+$' : '-$') + Math.abs(taxChg).toLocaleString()],
+            ['Rate Change', (rateChg >= 0 ? '+' : '') + rateChg + ' pts'],
+          )
+        }
       } else if (queryType === 'qbi_analysis') {
         const d = data
         items = [

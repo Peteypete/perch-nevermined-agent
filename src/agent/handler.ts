@@ -1,6 +1,6 @@
 // Agent Handler — Routes incoming requests to analysis functions
 
-import type { AnalysisRequest, AnalysisResponse, QueryType } from '../types.js'
+import type { AnalysisRequest, AnalysisResponse, QueryType, PriorYearReturn } from '../types.js'
 import { SERVICE_CATALOG } from '../types.js'
 import {
   analyzePropertyNOI,
@@ -41,7 +41,8 @@ export async function handleAnalysisRequest(request: AnalysisRequest): Promise<A
 
     case 'tax_projection': {
       const ownerId = (params.owner_id as string) || 'owner-01'
-      data = await analyzeTaxProjection(ownerId)
+      const priorYearReturn = params.prior_year_return as PriorYearReturn | undefined
+      data = await analyzeTaxProjection(ownerId, priorYearReturn)
       break
     }
 
@@ -117,7 +118,7 @@ export async function handleAnalysisRequest(request: AnalysisRequest): Promise<A
 
   // Generate narrative if requested or for complex queries
   let narrative: string | undefined
-  if (request.natural_language_query || ['portfolio_report', 'qbi_analysis', 'entity_recommendation', 'exchange_1031', 'state_relocation', 'international_analysis', 'transfer_pricing', 'sales_tax_nexus', 'business_return', 'personal_return_optimization', 'personal_return_filing'].includes(query_type)) {
+  if (request.natural_language_query || ['tax_projection', 'portfolio_report', 'qbi_analysis', 'entity_recommendation', 'exchange_1031', 'state_relocation', 'international_analysis', 'transfer_pricing', 'sales_tax_nexus', 'business_return', 'personal_return_optimization', 'personal_return_filing'].includes(query_type)) {
     try {
       narrative = await generateNarrative(query_type, data, request.natural_language_query)
     } catch (err) {

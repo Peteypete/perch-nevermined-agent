@@ -55,6 +55,25 @@ export interface LedgerEntry {
   category: string
 }
 
+// Prior Year Tax Return — structured fields aligned to Form 1040
+export interface PriorYearReturn {
+  taxYear: number
+  filingStatus: 'single' | 'married_joint' | 'married_separate' | 'head_of_household'
+  w2Income: number
+  businessIncome: number // Schedule C / Schedule E / K-1 net
+  totalIncome: number // Line 9
+  adjustedGrossIncome: number // Line 11
+  deductionAmount: number // Line 13 (standard or itemized)
+  taxableIncome: number // Line 15
+  totalTax: number // Line 24
+  totalPayments: number // Line 33 (withholding + estimated payments)
+  refundOrOwed: number // positive = refund, negative = owed
+  qbiDeduction?: number // Line 13, Section 199A
+  scheduleEIncome?: number
+  depreciationClaimed?: number
+  effectiveRate?: number // totalTax / AGI
+}
+
 // ============================================================================
 // Chart of Accounts (Tax-mapped to Schedule E)
 // ============================================================================

@@ -70,6 +70,20 @@ function formatFallbackNarrative(queryType: QueryType, data: any): string {
     case 'entity_recommendation':
       return `Recommendation: ${data.recommendation === 's_corp' ? 'S-Corp' : 'Schedule E'}. ${data.reasoning}`
 
+    case 'tax_projection': {
+      const tp = data.taxProjection?.summary
+      let text = `Projected tax: $${tp?.estimatedTax?.toLocaleString()} (${tp?.effectiveRate}% effective rate, ${(tp?.marginalRate * 100)}% marginal). `
+      if (data.yearOverYear) {
+        const taxDelta = data.yearOverYear.deltas?.totalTax
+        const dir = taxDelta?.change > 0 ? 'up' : 'down'
+        text += `YoY: tax ${dir} $${Math.abs(taxDelta?.change).toLocaleString()}. `
+        if (data.yearOverYear.insights?.length > 0) {
+          text += data.yearOverYear.insights[0]
+        }
+      }
+      return text
+    }
+
     default:
       return 'Analysis complete. See data for details.'
   }

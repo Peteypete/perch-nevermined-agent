@@ -1,6 +1,6 @@
 // High-level analysis functions — Property, Portfolio, Entity Recommendation
 
-import type { Owner, Entity, Property, LedgerEntry } from '../types.js'
+import type { Owner, Entity, Property, LedgerEntry, PriorYearReturn } from '../types.js'
 import { CHART_OF_ACCOUNTS } from '../types.js'
 import { calculateNOI, getEntityPnL } from './trial-balance.js'
 import {
@@ -71,7 +71,7 @@ export async function analyzePropertyNOI(propertyId: string) {
 // Tax Projection
 // ============================================================================
 
-export async function analyzeTaxProjection(ownerId: string) {
+export async function analyzeTaxProjection(ownerId: string, priorYearReturn?: PriorYearReturn) {
   const owner = await getOwner(ownerId)
   if (!owner) throw new Error(`Owner ${ownerId} not found`)
 
@@ -93,11 +93,125 @@ export async function analyzeTaxProjection(ownerId: string) {
     qualifiedBusinessIncome: totalSTRNet,
   })
 
-  return {
+  const result: Record<string, unknown> = {
     owner: { name: owner.name, filingStatus: owner.filingStatus, w2Income: owner.w2Income },
     entities: entityDetails,
     taxProjection: projection,
   }
+
+  // If prior year return provided, add YoY comparison
+  if (priorYearReturn) {
+    result.priorYear = buildPriorYearSummary(priorYearReturn)
+    result.yearOverYear = buildYearOverYearComparison(
+      projection, priorYearReturn, owner.w2Income, totalSTRNet
+    )
+  }
+
+  return result
+}
+
+// --- Prior Year helpers ---
+
+function buildPriorYearSummary(py: PriorYearReturn) {
+  return {
+    taxYear: py.taxYear,
+    filingStatus: py.filingStatus,
+    w2Income: py.w2Income,
+    businessIncome: py.businessIncome,
+    totalIncome: py.totalIncome,
+    agi: py.adjustedGrossIncome,
+    deductions: py.deductionAmount,
+    taxableIncome: py.taxableIncome,
+    totalTax: py.totalTax,
+    totalPayments: py.totalPayments,
+    refundOrOwed: py.refundOrOwed,
+    qbiDeduction: py.qbiDeduction ?? 0,
+    scheduleEIncome: py.scheduleEIncome ?? 0,
+    depreciationClaimed: py.depreciationClaimed ?? 0,
+    effectiveRate: py.effectiveRate ?? (py.adjustedGrossIncome > 0
+      ? Math.round((py.totalTax / py.adjustedGrossIncome) * 10000) / 100
+      : 0),
+  }
+}
+
+function buildYearOverYearComparison(
+  cyProjection: ReturnType<typeof projectTaxLiability>,
+  py: PriorYearReturn,
+  cyW2: number,
+  cySTRNet: number,
+) {
+  const cyTotalIncome = cyW2 + cySTRNet
+  const cyTax = cyProjection.summary.estimatedTax
+  const cyEffRate = cyProjection.summary.effectiveRate
+  const pyEffRate = py.effectiveRate ?? (py.adjustedGrossIncome > 0
+    ? Math.round((py.totalTax / py.adjustedGrossIncome) * 10000) / 100
+    : 0)
+
+  const pctChange = (curr: number, prev: number) =>
+    prev !== 0 ? Math.round(((curr - prev) / Math.abs(prev)) * 10000) / 100 : null
+
+  const deltas = {
+    w2Income: { py: py.w2Income, cy: cyW2, change: cyW2 - py.w2Income, pctChange: pctChange(cyW2, py.w2Income) },
+    businessIncome: { py: py.businessIncome, cy: cySTRNet, change: cySTRNet - py.businessIncome, pctChange: pctChange(cySTRNet, py.businessIncome) },
+    totalIncome: { py: py.totalIncome, cy: cyTotalIncome, change: cyTotalIncome - py.totalIncome, pctChange: pctChange(cyTotalIncome, py.totalIncome) },
+    totalTax: { py: py.totalTax, cy: cyTax, change: Math.round(cyTax - py.totalTax), pctChange: pctChange(cyTax, py.totalTax) },
+    effectiveRate: { py: pyEffRate, cy: cyEffRate, change: Math.round((cyEffRate - pyEffRate) * 100) / 100 },
+    qbiDeduction: { py: py.qbiDeduction ?? 0, cy: cyProjection.qbi.actualDeduction, change: cyProjection.qbi.actualDeduction - (py.qbiDeduction ?? 0) },
+  }
+
+  const insights = generateYoYInsights(cyProjection, py, cyW2, cySTRNet, deltas)
+
+  return { deltas, insights }
+}
+
+function generateYoYInsights(
+  cyProjection: ReturnType<typeof projectTaxLiability>,
+  py: PriorYearReturn,
+  cyW2: number,
+  cySTRNet: number,
+  deltas: Record<string, any>,
+): string[] {
+  const insights: string[] = []
+
+  // Tax change headline
+  const taxChange = deltas.totalTax.change
+  if (taxChange > 1000) {
+    insights.push(`Tax liability is ~$${Math.abs(taxChange).toLocaleString()} higher than ${py.taxYear}. Review estimated payment schedule to avoid underpayment penalty.`)
+  } else if (taxChange < -1000) {
+    insights.push(`Tax liability is ~$${Math.abs(taxChange).toLocaleString()} lower than ${py.taxYear}. You may be over-withholding — consider adjusting W-4 or estimated payments.`)
+  } else {
+    insights.push(`Tax liability is roughly flat vs ${py.taxYear} (within $1,000).`)
+  }
+
+  // QBI changes
+  const cyQBI = cyProjection.qbi.actualDeduction
+  const pyQBI = py.qbiDeduction ?? 0
+  if (cyQBI > 0 && pyQBI === 0) {
+    insights.push(`New QBI deduction of $${cyQBI.toLocaleString()} available this year — saves ~$${cyProjection.federalTax.qbiSavings.toLocaleString()}.`)
+  } else if (cyQBI === 0 && pyQBI > 0) {
+    insights.push(`QBI deduction lost vs ${py.taxYear} ($${pyQBI.toLocaleString()} → $0). AGI may have exceeded phase-out threshold.`)
+  } else if (cyQBI > 0 && pyQBI > 0 && Math.abs(cyQBI - pyQBI) > 500) {
+    const dir = cyQBI > pyQBI ? 'increased' : 'decreased'
+    insights.push(`QBI deduction ${dir} by $${Math.abs(cyQBI - pyQBI).toLocaleString()} (${py.taxYear}: $${pyQBI.toLocaleString()} → CY: $${cyQBI.toLocaleString()}).`)
+  }
+
+  // Income mix shift
+  const pyBizPct = py.totalIncome > 0 ? (py.businessIncome / py.totalIncome) * 100 : 0
+  const cyTotal = cyW2 + cySTRNet
+  const cyBizPct = cyTotal > 0 ? (cySTRNet / cyTotal) * 100 : 0
+  if (Math.abs(cyBizPct - pyBizPct) > 5) {
+    insights.push(`Business income shifted from ${Math.round(pyBizPct)}% to ${Math.round(cyBizPct)}% of total income — review entity structure and SE tax exposure.`)
+  }
+
+  // Underpayment risk
+  const pyPayments = py.totalPayments
+  const cyEstTax = cyProjection.summary.estimatedTax
+  if (cyEstTax > pyPayments * 1.1) {
+    const safeHarbor = Math.round(py.totalTax * 1.1)
+    insights.push(`Safe harbor: pay at least $${safeHarbor.toLocaleString()} (110% of ${py.taxYear} tax) in estimated payments to avoid underpayment penalty.`)
+  }
+
+  return insights
 }
 
 // ============================================================================
