@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perch — Tax & Finance Expert Agent</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface2: #1a1a26;
+      --border: #2a2a3a;
+      --text: #e4e4ed;
+      --text2: #8888a0;
+      --accent: #6c5ce7;
+      --accent2: #a29bfe;
+      --green: #00b894;
+      --green2: #55efc4;
+      --orange: #fdcb6e;
+      --red: #ff7675;
+      --blue: #74b9ff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--green));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+    }
+    .logo h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .logo span {
+      font-size: 13px;
+      color: var(--text2);
+      font-weight: 400;
+    }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(0,184,148,0.1);
+      border: 1px solid rgba(0,184,148,0.3);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--green);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* Layout */
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px;
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text2);
+    }
+    .card-body { padding: 16px 20px; }
+
+    /* Stats row */
+    .stats-row {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-top: 4px;
+      letter-spacing: -1px;
+    }
+    .stat-sub {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+
+    /* Services panel */
+    .service-list { list-style: none; }
+    .service-item {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .service-item:last-child { border-bottom: none; }
+    .service-item:hover { background: var(--surface2); }
+    .service-item.active {
+      background: rgba(108,92,231,0.1);
+      border-left: 3px solid var(--accent);
+    }
+    .service-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .service-desc {
+      font-size: 12px;
+      color: var(--text2);
+      margin-top: 2px;
+    }
+    .credit-badge {
+      padding: 3px 10px;
+      background: rgba(108,92,231,0.15);
+      border: 1px solid rgba(108,92,231,0.3);
+      border-radius: 12px;
+      font-size: 12px;
+      color: var(--accent2);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* Right panel */
+    .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Query builder */
+    .query-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .form-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .form-row label {
+      font-size: 12px;
+      color: var(--text2);
+      width: 80px;
+      flex-shrink: 0;
+    }
+    .form-row select, .form-row input {
+      flex: 1;
+      padding: 8px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+    }
+    .form-row select:focus, .form-row input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .run-btn {
+      padding: 10px 24px;
+      background: linear-gradient(135deg, var(--accent), #5b4cd4);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .run-btn:hover { opacity: 0.9; }
+    .run-btn:active { transform: scale(0.98); }
+    .run-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Results area */
+    .result-container {
+      flex: 1;
+      min-height: 300px;
+    }
+    .result-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 200px;
+      color: var(--text2);
+      font-size: 14px;
+    }
+    .result-narrative {
+      padding: 16px 20px;
+      background: rgba(108,92,231,0.06);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+    .result-data {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      color: var(--text2);
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    /* Key metrics from result */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .metric {
+      background: var(--surface2);
+      border-radius: 8px;
+      padding: 12px 16px;
+    }
+    .metric-label {
+      font-size: 11px;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .metric-value {
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .metric-value.green { color: var(--green2); }
+    .metric-value.orange { color: var(--orange); }
+    .metric-value.red { color: var(--red); }
+    .metric-value.blue { color: var(--blue); }
+    .metric-value.accent { color: var(--accent2); }
+
+    /* Activity log */
+    .activity-log {
+      grid-column: 1 / -1;
+    }
+    .log-entries { max-height: 200px; overflow-y: auto; }
+    .log-entry {
+      padding: 10px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+    .log-time {
+      color: var(--text2);
+      font-family: monospace;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .log-type {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .log-type.noi { background: rgba(0,184,148,0.15); color: var(--green); }
+    .log-type.tax { background: rgba(116,185,255,0.15); color: var(--blue); }
+    .log-type.qbi { background: rgba(253,203,110,0.15); color: var(--orange); }
+    .log-type.classify { background: rgba(162,155,254,0.15); color: var(--accent2); }
+    .log-type.portfolio { background: rgba(255,118,117,0.15); color: var(--red); }
+    .log-type.entity { background: rgba(85,239,196,0.15); color: var(--green2); }
+    .log-msg { color: var(--text); }
+    .log-credits { color: var(--text2); margin-left: auto; flex-shrink: 0; }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .activity-log { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">P</div>
+      <div>
+        <h1>Perch</h1>
+        <span>Tax & Finance Expert Agent</span>
+      </div>
+    </div>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      Agent Online
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Stats Row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Queries Served</div>
+        <div class="stat-value" id="stat-queries">0</div>
+        <div class="stat-sub">total analyses</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Credits Earned</div>
+        <div class="stat-value" id="stat-credits" style="color:var(--green2)">0</div>
+        <div class="stat-sub">from transactions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Properties Tracked</div>
+        <div class="stat-value" id="stat-properties" style="color:var(--blue)">5</div>
+        <div class="stat-sub">Austin STR portfolio</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Tax Savings Found</div>
+        <div class="stat-value" id="stat-savings" style="color:var(--orange)">$0</div>
+        <div class="stat-sub">this session</div>
+      </div>
+    </div>
+
+    <!-- Services Panel (Left) -->
+    <div class="card">
+      <div class="card-header">Services</div>
+      <ul class="service-list" id="service-list">
+        <li class="service-item active" data-type="property_noi" data-params='{"property_id":"prop-03"}'>
+          <div>
+            <div class="service-name">Property NOI</div>
+            <div class="service-desc">Net Operating Income analysis</div>
+          </div>
+          <div class="credit-badge">2 credits</div>
+        </li>
+        <li class="service-item" data-type="tax_projection" data-params='{"owner_id":"owner-01"}'>
+          <div>
+            <div class="service-name">Tax Projection</div>
+            <div class="service-desc">Federal bracket math + effective rate</div>
+          </div>
+          <div class="credit-badge">3 credits</div>
+        </li>
+        <li class="service-item" data-type="qbi_analysis" data-params='{"owner_id":"owner-01"}'>
+          <div>
+            <div class="service-name">QBI Analysis</div>
+            <div class="service-desc">Section 199A deduction eligibility</div>
+          </div>
+          <div class="credit-badge">5 credits</div>
+        </li>
+        <li class="service-item" data-type="expense_classify" data-params='{"description":"HVAC repair at Zilker Cottage","amount":1850}'>
+          <div>
+            <div class="service-name">Expense Classify</div>
+            <div class="service-desc">Map expense to tax category</div>
+          </div>
+          <div class="credit-badge">1 credit</div>
+        </li>
+        <li class="service-item" data-type="portfolio_report" data-params='{"owner_id":"owner-01"}'>
+          <div>
+            <div class="service-name">Portfolio Report</div>
+            <div class="service-desc">Full portfolio health overview</div>
+          </div>
+          <div class="credit-badge">5 credits</div>
+        </li>
+        <li class="service-item" data-type="entity_recommendation" data-params='{"owner_id":"owner-01"}'>
+          <div>
+            <div class="service-name">Entity Recommendation</div>
+            <div class="service-desc">Schedule E vs S-Corp analysis</div>
+          </div>
+          <div class="credit-badge">3 credits</div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
+      <!-- Query Builder -->
+      <div class="card">
+        <div class="card-header">Run Analysis</div>
+        <div class="card-body">
+          <div class="query-form" id="query-form">
+            <div class="form-row">
+              <label>Service</label>
+              <select id="query-type">
+                <option value="property_noi">Property NOI</option>
+                <option value="tax_projection">Tax Projection</option>
+                <option value="qbi_analysis">QBI Analysis</option>
+                <option value="expense_classify">Expense Classify</option>
+                <option value="portfolio_report">Portfolio Report</option>
+                <option value="entity_recommendation">Entity Recommendation</option>
+              </select>
+            </div>
+            <div class="form-row" id="param-row">
+              <label id="param-label">Property</label>
+              <select id="param-value">
+                <option value="prop-01">East Austin Bungalow</option>
+                <option value="prop-02">South Congress Loft</option>
+                <option value="prop-03" selected>Zilker Cottage</option>
+                <option value="prop-04">Domain Modern Studio</option>
+                <option value="prop-05">Rainey Street Condo</option>
+              </select>
+            </div>
+            <div class="form-row" id="expense-row" style="display:none">
+              <label>Expense</label>
+              <input id="expense-desc" type="text" placeholder="HVAC repair at Zilker Cottage" value="HVAC repair at Zilker Cottage">
+            </div>
+            <div class="form-row" id="amount-row" style="display:none">
+              <label>Amount</label>
+              <input id="expense-amount" type="number" placeholder="1850" value="1850">
+            </div>
+            <div class="form-row" style="justify-content:flex-end">
+              <button class="run-btn" id="run-btn">Run Analysis</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="card result-container">
+        <div class="card-header" id="result-header">Results</div>
+        <div class="card-body" id="result-body">
+          <div class="result-placeholder">Select a service and run an analysis</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="card activity-log">
+      <div class="card-header">Activity Log</div>
+      <div class="log-entries" id="log-entries">
+        <div class="log-entry">
+          <span class="log-time">--:--:--</span>
+          <span class="log-msg" style="color:var(--text2)">Waiting for queries...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BASE = window.location.origin
+    let totalQueries = 0
+    let totalCredits = 0
+    let totalSavings = 0
+
+    // Service list click → select service
+    document.querySelectorAll('.service-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.service-item').forEach(i => i.classList.remove('active'))
+        item.classList.add('active')
+        const type = item.dataset.type
+        document.getElementById('query-type').value = type
+        updateParamUI(type)
+      })
+    })
+
+    // Query type dropdown → sync
+    document.getElementById('query-type').addEventListener('change', e => {
+      const type = e.target.value
+      document.querySelectorAll('.service-item').forEach(i => {
+        i.classList.toggle('active', i.dataset.type === type)
+      })
+      updateParamUI(type)
+    })
+
+    function updateParamUI(type) {
+      const paramRow = document.getElementById('param-row')
+      const expenseRow = document.getElementById('expense-row')
+      const amountRow = document.getElementById('amount-row')
+      const paramLabel = document.getElementById('param-label')
+      const paramValue = document.getElementById('param-value')
+
+      expenseRow.style.display = 'none'
+      amountRow.style.display = 'none'
+
+      if (type === 'expense_classify') {
+        paramRow.style.display = 'none'
+        expenseRow.style.display = 'flex'
+        amountRow.style.display = 'flex'
+      } else if (type === 'property_noi') {
+        paramRow.style.display = 'flex'
+        paramLabel.textContent = 'Property'
+        paramValue.innerHTML = `
+          <option value="prop-01">East Austin Bungalow</option>
+          <option value="prop-02">South Congress Loft</option>
+          <option value="prop-03" selected>Zilker Cottage</option>
+          <option value="prop-04">Domain Modern Studio</option>
+          <option value="prop-05">Rainey Street Condo</option>
+        `
+      } else {
+        paramRow.style.display = 'flex'
+        paramLabel.textContent = 'Owner'
+        paramValue.innerHTML = `<option value="owner-01" selected>Alex Morgan</option>`
+      }
+    }
+
+    // Build request body
+    function buildRequest() {
+      const type = document.getElementById('query-type').value
+      let params = {}
+      if (type === 'property_noi') {
+        params = { property_id: document.getElementById('param-value').value }
+      } else if (type === 'expense_classify') {
+        params = {
+          description: document.getElementById('expense-desc').value,
+          amount: parseFloat(document.getElementById('expense-amount').value) || 0
+        }
+      } else {
+        params = { owner_id: document.getElementById('param-value').value }
+      }
+      return { query_type: type, params }
+    }
+
+    // Run analysis
+    document.getElementById('run-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('run-btn')
+      const resultBody = document.getElementById('result-body')
+      const resultHeader = document.getElementById('result-header')
+
+      btn.disabled = true
+      btn.innerHTML = '<span class="spinner"></span>Analyzing...'
+      resultBody.innerHTML = '<div class="result-placeholder"><span class="spinner"></span>Running analysis...</div>'
+
+      const body = buildRequest()
+      const startTime = Date.now()
+
+      try {
+        const res = await fetch(`${BASE}/api/demo`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        })
+
+        const data = await res.json()
+        const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
+        const credits = data.credits_used || 0
+
+        totalQueries++
+        totalCredits += credits
+        document.getElementById('stat-queries').textContent = totalQueries
+        document.getElementById('stat-credits').textContent = totalCredits
+
+        resultHeader.textContent = `Results — ${formatServiceName(body.query_type)} (${elapsed}s, ${credits} credits)`
+        renderResult(body.query_type, data, resultBody)
+        addLogEntry(body.query_type, data, credits)
+
+        // Track tax savings
+        if (data.data?.qbiAnalysis?.taxSavings) {
+          totalSavings += data.data.qbiAnalysis.taxSavings
+        }
+        if (data.data?.projection?.qbiDeduction) {
+          totalSavings += data.data.projection.qbiDeduction
+        }
+        if (totalSavings > 0) {
+          document.getElementById('stat-savings').textContent = '$' + Math.round(totalSavings).toLocaleString()
+        }
+      } catch (err) {
+        resultBody.innerHTML = `<div class="result-placeholder" style="color:var(--red)">Error: ${err.message}</div>`
+      }
+
+      btn.disabled = false
+      btn.textContent = 'Run Analysis'
+    })
+
+    function formatServiceName(type) {
+      const names = {
+        property_noi: 'Property NOI',
+        tax_projection: 'Tax Projection',
+        qbi_analysis: 'QBI Analysis',
+        expense_classify: 'Expense Classify',
+        portfolio_report: 'Portfolio Report',
+        entity_recommendation: 'Entity Recommendation'
+      }
+      return names[type] || type
+    }
+
+    function renderResult(type, data, container) {
+      let html = ''
+
+      // Narrative (if present)
+      if (data.narrative) {
+        html += `<div class="result-narrative">${data.narrative}</div>`
+      }
+
+      // Type-specific metrics
+      const d = data.data || {}
+      html += '<div class="metrics-grid">'
+
+      if (type === 'property_noi') {
+        html += metric('Property', d.property?.name || '—', '')
+        html += metric('YTD Revenue', money(d.ytd?.totalRevenue), 'green')
+        html += metric('YTD Expenses', money(d.ytd?.totalExpenses), 'red')
+        html += metric('YTD NOI', money(d.ytd?.noi), 'green')
+        html += metric('NOI Margin', (d.ytd?.noiMargin || 0) + '%', d.ytd?.noiMargin > 60 ? 'green' : 'orange')
+        html += metric('Cap Rate', (d.capRate || 0) + '%', 'blue')
+        html += metric('MP Hours', `${d.materialParticipation?.currentHours || 0}/${d.materialParticipation?.threshold || 750}`, d.materialParticipation?.status === 'met' ? 'green' : 'orange')
+        html += metric('Annual Proj.', money(d.annualProjection?.projectedNOI), 'accent')
+      } else if (type === 'tax_projection') {
+        const tp = d.taxProjection || {}
+        const inc = tp.income || {}
+        html += metric('W-2 Income', money(inc.w2), '')
+        html += metric('STR Net', money(inc.strNet), 'green')
+        html += metric('Total AGI', money(inc.totalGross), 'blue')
+        html += metric('Federal Tax', money(tp.federalTax?.beforeQBI?.totalTax), 'red')
+        html += metric('Effective Rate', (tp.summary?.effectiveRate || 0) + '%', 'orange')
+        html += metric('QBI Deduction', money(tp.qbi?.actualDeduction), 'green')
+        html += metric('Tax w/ QBI', money(tp.summary?.estimatedTax), 'accent')
+        html += metric('QBI Savings', money(tp.federalTax?.qbiSavings), 'green')
+      } else if (type === 'qbi_analysis') {
+        html += metric('Owner', d.owner?.name || '—', '')
+        html += metric('STR Income', money(d.totalSTRIncome), 'green')
+        html += metric('Total AGI', money(d.totalAGI), 'blue')
+        html += metric('QBI Status', d.qbiAnalysis?.status || '—', d.qbiAnalysis?.status === 'full' ? 'green' : 'orange')
+        html += metric('Deduction', money(d.qbiAnalysis?.actualDeduction), 'green')
+        html += metric('Tax Savings', money(d.qbiAnalysis?.taxSavings), 'green')
+        html += metric('Phase-out', d.qbiAnalysis?.phaseOutPct ? d.qbiAnalysis.phaseOutPct + '%' : 'None', d.qbiAnalysis?.phaseOutPct > 0 ? 'orange' : 'green')
+      } else if (type === 'expense_classify') {
+        html += metric('Account', d.accountName || '—', 'accent')
+        html += metric('Code', d.accountCode || '—', '')
+        html += metric('Category', d.category || '—', 'blue')
+        html += metric('Schedule E', d.scheduleELine || '—', 'green')
+      } else if (type === 'portfolio_report') {
+        const p = d.portfolio || {}
+        html += metric('Entities', p.totalEntities || 0, 'blue')
+        html += metric('Properties', p.totalProperties || 0, 'accent')
+        html += metric('Total Revenue', money(p.totalRevenue), 'green')
+        html += metric('Total Expenses', money(p.totalExpenses), 'red')
+        html += metric('Net Income', money(p.totalNetIncome), 'green')
+        html += metric('NOI Margin', (p.overallNOIMargin || 0) + '%', 'accent')
+        html += metric('Alerts', d.alerts?.length || 0, d.alerts?.length > 0 ? 'orange' : 'green')
+        if (d.alerts?.length) {
+          html += '</div><div style="margin-bottom:16px">'
+          d.alerts.forEach(a => {
+            html += `<div style="padding:8px 12px;margin-bottom:6px;background:rgba(253,203,110,0.08);border-left:3px solid var(--orange);border-radius:0 6px 6px 0;font-size:13px;color:var(--orange)">${a}</div>`
+          })
+          html += '<div class="metrics-grid">'
+        }
+      } else if (type === 'entity_recommendation') {
+        const a = d.analysis || {}
+        html += metric('STR Income', money(d.currentSTRIncome), 'blue')
+        html += metric('Sched. E SE Tax', money(a.scheduleE?.selfEmploymentTax), 'red')
+        html += metric('Recommendation', (d.recommendation || '—').replace('_', ' '), 'accent')
+        html += metric('S-Corp Salary', money(a.sCorp?.reasonableSalary), 'blue')
+        html += metric('S-Corp SE Tax', money(a.sCorp?.selfEmploymentTax), 'green')
+        html += metric('Annual Savings', money(a.sCorp?.annualSavings), 'green')
+        if (d.reasoning) {
+          html += '</div><div style="padding:12px 16px;margin-bottom:16px;background:rgba(108,92,231,0.06);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-size:14px;line-height:1.6;color:var(--text)">' + d.reasoning + '</div><div class="metrics-grid">'
+        }
+      }
+
+      html += '</div>'
+
+      // Raw data
+      html += `<details><summary style="cursor:pointer;color:var(--text2);font-size:12px;margin-bottom:8px">Raw JSON</summary>`
+      html += `<div class="result-data">${JSON.stringify(d, null, 2)}</div>`
+      html += `</details>`
+
+      container.innerHTML = html
+    }
+
+    function metric(label, value, color) {
+      return `<div class="metric"><div class="metric-label">${label}</div><div class="metric-value ${color}">${value}</div></div>`
+    }
+
+    function money(val) {
+      if (val == null) return '—'
+      const num = typeof val === 'number' ? val : parseFloat(val)
+      if (isNaN(num)) return '—'
+      return '$' + Math.round(num).toLocaleString()
+    }
+
+    function addLogEntry(type, data, credits) {
+      const log = document.getElementById('log-entries')
+      const now = new Date().toLocaleTimeString('en-US', { hour12: false })
+      const d = data.data || {}
+
+      let msg = ''
+      if (type === 'property_noi') msg = `${d.property?.name || 'Property'} — NOI: ${money(d.ytd?.noi)}`
+      else if (type === 'tax_projection') msg = `Federal tax: ${money(d.projection?.federalTax)} (${d.projection?.effectiveRate}% eff.)`
+      else if (type === 'qbi_analysis') msg = `QBI deduction: ${money(d.qbiAnalysis?.actualDeduction)} — ${d.qbiAnalysis?.status}`
+      else if (type === 'expense_classify') msg = `${d.accountName} → ${d.scheduleELine}`
+      else if (type === 'portfolio_report') msg = `${d.entities?.length || 0} entities, NOI: ${money(d.totals?.noi)}`
+      else if (type === 'entity_recommendation') msg = `${d.recommendation || 'Analysis complete'}`
+
+      const typeClass = {
+        property_noi: 'noi', tax_projection: 'tax', qbi_analysis: 'qbi',
+        expense_classify: 'classify', portfolio_report: 'portfolio', entity_recommendation: 'entity'
+      }
+
+      const entry = document.createElement('div')
+      entry.className = 'log-entry'
+      entry.innerHTML = `
+        <span class="log-time">${now}</span>
+        <span class="log-type ${typeClass[type] || ''}">${formatServiceName(type)}</span>
+        <span class="log-msg">${msg}</span>
+        <span class="log-credits">${credits} cr</span>
+      `
+
+      // Remove placeholder
+      if (log.children.length === 1 && log.children[0].querySelector('.log-msg')?.style?.color) {
+        log.innerHTML = ''
+      }
+      log.prepend(entry)
+    }
+
+    // Load initial stats
+    async function loadStats() {
+      try {
+        const res = await fetch(`${BASE}/api/health`)
+        const data = await res.json()
+        if (data.stats) {
+          document.getElementById('stat-queries').textContent = data.stats.totalQueries || 0
+          document.getElementById('stat-credits').textContent = data.stats.totalCreditsEarned || 0
+          totalQueries = data.stats.totalQueries || 0
+          totalCredits = data.stats.totalCreditsEarned || 0
+        }
+      } catch {}
+    }
+    loadStats()
+  </script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import express, { Request, Response } from 'express'
 import cors from 'cors'
+import path from 'path'
 import { handleAnalysisRequest, getCreditsForQuery } from './agent/handler.js'
 import { SERVICE_CATALOG } from './types.js'
 import type { AnalysisRequest, QueryType } from './types.js'
@@ -9,6 +10,9 @@ import { rtdb } from './firebase/config.js'
 const app = express()
 app.use(express.json())
 app.use(cors())
+
+// Serve static dashboard
+app.use(express.static(path.join(process.cwd(), 'public')))
 
 // Lazy init — Nevermined SDK crashes if API key is invalid/placeholder
 let _paymentsModule: any = null
