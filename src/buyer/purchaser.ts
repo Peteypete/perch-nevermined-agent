@@ -116,6 +116,6 @@ export function buildQuery(agent: DiscoveredAgent): Record<string, unknown> {
   // Generic query for unknown agents
   return {
     query: 'What services do you offer?',
-    message: 'Hello from Perch autonomous buyer agent',
+    message: 'Hello from Tallyfor AI autonomous buyer agent',
   }
 }

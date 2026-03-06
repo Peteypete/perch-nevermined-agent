@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Ultra-minimal — single stroke bird on a line, like a signature mark -->
+
+  <!-- The perch/bar -->
+  <line x1="16" y1="84" x2="104" y2="84" stroke="#16a34a" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Bird — one continuous path, calligraphic style -->
+  <path d="M36 68 C36 68 30 48 50 36 C60 30 72 32 74 42 C76 52 68 58 62 62 C56 66 56 72 58 84"
+        stroke="#14532d" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Head bump -->
+  <circle cx="68" cy="38" r="8" fill="#16a34a"/>
+
+  <!-- Eye -->
+  <circle cx="72" cy="36" r="2" fill="white"/>
+
+  <!-- Beak — simple angled line -->
+  <path d="M76 36 L86 32 L78 40" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Tail flick -->
+  <path d="M36 68 L20 54" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
+  <path d="M36 64 L24 48" stroke="#16a34a" stroke-width="3" stroke-linecap="round"/>
+</svg>

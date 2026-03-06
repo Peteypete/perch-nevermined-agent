@@ -170,7 +170,7 @@ export function createConnectRouter(): Router {
     if (isDuplicate(body.agentId.trim())) {
       res.status(409).json({
         error: 'Agent already submitted',
-        message: 'This agent is already connected. Perch will continue buying from it.',
+        message: 'This agent is already connected. Tallyfor AI will continue buying from it.',
       })
       return
     }
@@ -188,7 +188,7 @@ export function createConnectRouter(): Router {
     }
 
     res.status(201).json({
-      message: `Welcome ${agent.name}! Perch will start buying from you shortly.`,
+      message: `Welcome ${agent.name}! Tallyfor AI will start buying from you shortly.`,
       agent,
       autoPurchase: !!onNewAgent,
     })

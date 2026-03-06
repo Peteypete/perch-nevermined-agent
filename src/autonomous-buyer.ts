@@ -203,7 +203,7 @@ export async function purchaseFromSubmitted(
 }
 
 export function startBuyerLoop() {
-  console.log(`\nPerch Autonomous Buyer Agent`)
+  console.log(`\nTallyfor AI Autonomous Buyer Agent`)
   console.log(`============================`)
   console.log(`Budget: ${budget.getStatus().totalBudget} credits`)
   console.log(`Routes: /api/buyer/* (mounted on seller)\n`)

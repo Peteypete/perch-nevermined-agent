@@ -69,7 +69,7 @@ app.get('/api/services', (_req: Request, res: Response) => {
   const taxFiling = services.filter(s => s.category === 'Tax Filing')
 
   res.json({
-    agent: 'Perch Tax & Finance Expert',
+    agent: 'Tallyfor AI Tax & Finance Expert',
     description: 'AI-powered real estate tax analysis, QBI optimization, and financial reporting for STR portfolios',
     planId: PLAN_ID,
     categories: [
@@ -97,7 +97,7 @@ app.get('/api/health', async (_req: Request, res: Response) => {
     const stats = snap.val() || {}
     res.json({
       status: 'ok',
-      agent: 'Perch Tax & Finance Expert',
+      agent: 'Tallyfor AI Tax & Finance Expert',
       agentId: AGENT_ID,
       planId: PLAN_ID,
       stats,
@@ -283,7 +283,7 @@ app.post('/query', async (req: Request, res: Response) => {
       result = await handleAnalysisRequest(req.body as AnalysisRequest)
     } else {
       result = {
-        message: 'Perch Tax & Finance Expert Agent',
+        message: 'Tallyfor AI Tax & Finance Expert Agent',
         query: req.body,
         services: Object.keys(SERVICE_CATALOG),
         hint: 'Send { "query_type": "property_noi", "params": { "property_id": "prop-01" } }',
@@ -334,7 +334,7 @@ app.get('/api/nevermined/agent', async (_req: Request, res: Response) => {
 
     res.json({
       agent: {
-        name: 'Perch Tax & Finance Expert',
+        name: 'Tallyfor AI Tax & Finance Expert',
         id: AGENT_ID,
         shortId: AGENT_ID.slice(0, 12) + '...' + AGENT_ID.slice(-8),
         description: 'AI-powered real estate tax analysis for STR portfolios',
@@ -343,7 +343,7 @@ app.get('/api/nevermined/agent', async (_req: Request, res: Response) => {
       plan: {
         id: PLAN_ID,
         shortId: PLAN_ID.slice(0, 12) + '...' + PLAN_ID.slice(-8),
-        name: 'Perch Analysis Credits',
+        name: 'Tallyfor AI Analysis Credits',
         type: 'credits',
         creditsPerPlan: 100,
         pricing: 'free',
@@ -377,7 +377,7 @@ app.get('/api/nevermined/agent', async (_req: Request, res: Response) => {
     })
   } catch (err: any) {
     res.json({
-      agent: { name: 'Perch Tax & Finance Expert', id: AGENT_ID },
+      agent: { name: 'Tallyfor AI Tax & Finance Expert', id: AGENT_ID },
       plan: { id: PLAN_ID },
       error: err.message,
     })
@@ -620,7 +620,7 @@ import('./connect/routes.js').then(async ({ loadSubmittedAgents, createConnectRo
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
-  console.log(`\nPerch Tax & Finance Expert Agent`)
+  console.log(`\nTallyfor AI Tax & Finance Expert Agent`)
   console.log(`================================`)
   console.log(`Server:    http://localhost:${PORT}`)
   console.log(`Agent ID:  ${AGENT_ID}`)

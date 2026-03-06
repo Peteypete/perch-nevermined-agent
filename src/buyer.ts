@@ -10,7 +10,7 @@ const payments = Payments.getInstance({
   environment: 'sandbox'
 })
 
-console.log('=== Perch Buyer Test ===\n')
+console.log('=== Tallyfor AI Buyer Test ===\n')
 
 console.log('1. Ordering plan...')
 await payments.plans.orderPlan(PLAN_ID)

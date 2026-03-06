@@ -9,7 +9,7 @@ async function main() {
 
   const { agentId, planId } = await payments.agents.registerAgentAndPlan(
     {
-      name: 'Perch Tax & Finance Expert',
+      name: 'Tallyfor AI Tax & Finance Expert',
       description: 'AI-powered real estate tax analysis for STR portfolios. Services: property NOI, federal tax projection, QBI deduction analysis, expense classification, portfolio reports, entity structure recommendations.',
       tags: ['ai', 'tax', 'real-estate', 'str', 'finance', 'qbi'],
       dateCreated: new Date()
@@ -19,7 +19,7 @@ async function main() {
       agentDefinitionUrl: `${process.env.AGENT_URL || 'http://localhost:3000'}/api/services`,
     },
     {
-      name: 'Perch Analysis Credits',
+      name: 'Tallyfor AI Analysis Credits',
       description: '100 analysis credits — free for hackathon. Services cost 1-5 credits each.',
       dateCreated: new Date()
     },

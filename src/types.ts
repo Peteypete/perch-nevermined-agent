@@ -1,4 +1,4 @@
-// Perch Tax & Finance Expert Agent — Shared Types
+// Tallyfor AI — Tax & Finance Expert Agent — Shared Types
 
 // ============================================================================
 // Firebase / Data Models
