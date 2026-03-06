@@ -593,6 +593,28 @@ if (process.env.BUYER_API_KEY) {
 }
 
 // ============================================================================
+// Mount connect routes (agent submission & auto-buy)
+// ============================================================================
+
+import('./connect/routes.js').then(async ({ loadSubmittedAgents, createConnectRouter, setPurchaseTrigger }) => {
+  await loadSubmittedAgents()
+  const connectRouter = createConnectRouter()
+  app.use('/api/agents', connectRouter)
+  console.log(`  Connect page:    /connect/`)
+  console.log(`  Submit API:      /api/agents/submit`)
+
+  // Wire auto-purchase if buyer is available
+  if (process.env.BUYER_API_KEY) {
+    import('./autonomous-buyer.js').then(({ purchaseFromSubmitted }) => {
+      setPurchaseTrigger(purchaseFromSubmitted)
+      console.log(`  Auto-purchase:   enabled`)
+    }).catch(() => {})
+  }
+}).catch(err => {
+  console.error('[Seller] Failed to mount connect routes:', err.message)
+})
+
+// ============================================================================
 // Start server
 // ============================================================================
 

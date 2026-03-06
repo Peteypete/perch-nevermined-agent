@@ -6,6 +6,7 @@ import { executePurchase, buildQuery } from './buyer/purchaser.js'
 import { BudgetManager } from './buyer/budget.js'
 import { createBuyerRouter } from './buyer/routes.js'
 import type { DiscoveredAgent, AgentScore } from './buyer/types.js'
+import { getAllSubmitted, toDiscoveredAgent } from './connect/routes.js'
 
 // ============================================================================
 // Init
@@ -43,6 +44,16 @@ async function runAutonomousCycle() {
     console.log('\n--- Phase 1: Discovery ---')
     discoveredAgents = await discoverAgents(payments)
     lastDiscovery = new Date().toISOString()
+
+    // Inject community-submitted agents
+    const submitted = getAllSubmitted()
+    for (const sa of submitted) {
+      const da = toDiscoveredAgent(sa)
+      if (!discoveredAgents.find(a => a.agentId === da.agentId)) {
+        discoveredAgents.push(da)
+        console.log(`[Discovery] + Community agent: ${da.name}`)
+      }
+    }
 
     if (discoveredAgents.length === 0) {
       console.log('[Cycle] No agents found. Will retry next cycle.')
@@ -160,6 +171,36 @@ export const buyerRouter = createBuyerRouter({
     }
   },
 })
+
+export async function purchaseFromSubmitted(
+  agent: DiscoveredAgent,
+): Promise<{ success: boolean; responseTimeMs: number; satisfactionScore: number; error?: string }> {
+  // Add to discovered pool
+  if (!discoveredAgents.find(a => a.agentId === agent.agentId)) {
+    discoveredAgents.push(agent)
+  }
+
+  console.log(`[Connect] Auto-purchasing from ${agent.name}...`)
+
+  if (!budget.canAfford(1)) {
+    return { success: false, responseTimeMs: 0, satisfactionScore: 0, error: 'Budget exhausted' }
+  }
+
+  const query = buildQuery(agent)
+  const record = await executePurchase(payments, agent, query)
+  budget.recordPurchase(record)
+
+  if (record.success) {
+    lastPurchase = new Date().toISOString()
+  }
+
+  return {
+    success: record.success,
+    responseTimeMs: record.responseTimeMs,
+    satisfactionScore: record.satisfactionScore,
+    error: record.error,
+  }
+}
 
 export function startBuyerLoop() {
   console.log(`\nPerch Autonomous Buyer Agent`)

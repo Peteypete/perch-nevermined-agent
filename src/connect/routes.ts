@@ -1,0 +1,210 @@
+// Connect — Agent Submission & Auto-Buy Routes
+
+import { Router, Request, Response } from 'express'
+import type { DiscoveredAgent } from '../buyer/types.js'
+import { rtdb } from '../firebase/config.js'
+
+// ============================================================================
+// Types
+// ============================================================================
+
+interface SubmittedService {
+  path: string
+  credits: number
+  description?: string
+}
+
+interface AgentSubmission {
+  name: string
+  planId: string
+  agentId: string
+  url: string
+  services: SubmittedService[]
+  submitterName?: string
+  description?: string
+}
+
+interface SubmittedAgent {
+  id: string
+  name: string
+  planId: string
+  agentId: string
+  url: string
+  services: SubmittedService[]
+  submitterName: string
+  description: string
+  submittedAt: string
+  status: 'pending' | 'purchased' | 'failed'
+  purchaseResult?: {
+    success: boolean
+    responseTimeMs: number
+    satisfactionScore: number
+    error?: string
+  }
+}
+
+// ============================================================================
+// In-Memory Store + Firebase RTDB
+// ============================================================================
+
+const agents = new Map<string, SubmittedAgent>()
+const RTDB_PATH = '/submitted-agents'
+
+export async function loadSubmittedAgents(): Promise<void> {
+  try {
+    const snap = await rtdb.ref(RTDB_PATH).get()
+    const data = snap.val() || {}
+    for (const [id, agent] of Object.entries(data)) {
+      agents.set(id, agent as SubmittedAgent)
+    }
+    console.log(`[Connect] Loaded ${agents.size} submitted agents from Firebase`)
+  } catch (err: any) {
+    console.error('[Connect] Failed to load from Firebase:', err.message)
+  }
+}
+
+async function saveAgent(submission: AgentSubmission): Promise<SubmittedAgent> {
+  const id = `submitted-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+  const agent: SubmittedAgent = {
+    id,
+    name: submission.name.trim(),
+    planId: submission.planId.trim(),
+    agentId: submission.agentId.trim(),
+    url: submission.url.trim().replace(/\/$/, ''),
+    services: submission.services,
+    submitterName: submission.submitterName?.trim() || 'Anonymous',
+    description: submission.description?.trim() || '',
+    submittedAt: new Date().toISOString(),
+    status: 'pending',
+  }
+  agents.set(id, agent)
+  try {
+    await rtdb.ref(`${RTDB_PATH}/${id}`).set(agent)
+  } catch {
+    // non-critical — in-memory is primary
+  }
+  return agent
+}
+
+async function updateStatus(
+  id: string,
+  status: SubmittedAgent['status'],
+  purchaseResult?: SubmittedAgent['purchaseResult'],
+): Promise<void> {
+  const agent = agents.get(id)
+  if (!agent) return
+  agent.status = status
+  if (purchaseResult) agent.purchaseResult = purchaseResult
+  try {
+    await rtdb.ref(`${RTDB_PATH}/${id}`).update({ status, purchaseResult: purchaseResult || null })
+  } catch {
+    // non-critical
+  }
+}
+
+function isDuplicate(agentId: string): boolean {
+  return [...agents.values()].some(a => a.agentId === agentId)
+}
+
+export function getAllSubmitted(): SubmittedAgent[] {
+  return [...agents.values()].sort(
+    (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime(),
+  )
+}
+
+export function toDiscoveredAgent(submitted: SubmittedAgent): DiscoveredAgent {
+  return {
+    agentId: submitted.agentId,
+    planId: submitted.planId,
+    name: submitted.name,
+    description: submitted.description || `Submitted by ${submitted.submitterName}`,
+    tags: ['hackathon', 'community', 'submitted'],
+    endpoint: submitted.url,
+    creditsPerPlan: 100,
+    serviceCatalog: submitted.services.map(s => ({
+      query_type: s.path.replace(/^\//, ''),
+      credits: s.credits,
+      description: s.description || s.path,
+    })),
+  }
+}
+
+// ============================================================================
+// Auto-Purchase Trigger
+// ============================================================================
+
+type PurchaseTrigger = (agent: DiscoveredAgent) => Promise<{ success: boolean; responseTimeMs: number; satisfactionScore: number; error?: string }>
+
+let onNewAgent: PurchaseTrigger | null = null
+
+export function setPurchaseTrigger(trigger: PurchaseTrigger) {
+  onNewAgent = trigger
+}
+
+// ============================================================================
+// Routes
+// ============================================================================
+
+export function createConnectRouter(): Router {
+  const router = Router()
+
+  // POST /submit — submit a new agent
+  router.post('/submit', async (req: Request, res: Response) => {
+    const body = req.body as AgentSubmission
+
+    // Validate
+    const errors: string[] = []
+    if (!body.name?.trim()) errors.push('name is required')
+    if (!body.planId?.trim()) errors.push('planId is required')
+    if (!body.agentId?.trim()) errors.push('agentId is required')
+    if (!body.url?.trim()) errors.push('url is required')
+    if (!Array.isArray(body.services) || body.services.length === 0) {
+      errors.push('at least one service is required')
+    }
+
+    if (errors.length > 0) {
+      res.status(400).json({ error: 'Validation failed', details: errors })
+      return
+    }
+
+    if (isDuplicate(body.agentId.trim())) {
+      res.status(409).json({
+        error: 'Agent already submitted',
+        message: 'This agent is already connected. Perch will continue buying from it.',
+      })
+      return
+    }
+
+    const agent = await saveAgent(body)
+
+    // Trigger auto-purchase in background
+    if (onNewAgent) {
+      const discovered = toDiscoveredAgent(agent)
+      onNewAgent(discovered)
+        .then(result => updateStatus(agent.id, result.success ? 'purchased' : 'failed', result))
+        .catch(err => updateStatus(agent.id, 'failed', {
+          success: false, responseTimeMs: 0, satisfactionScore: 0, error: err.message,
+        }))
+    }
+
+    res.status(201).json({
+      message: `Welcome ${agent.name}! Perch will start buying from you shortly.`,
+      agent,
+      autoPurchase: !!onNewAgent,
+    })
+  })
+
+  // GET /submitted — list all submitted agents
+  router.get('/submitted', (_req: Request, res: Response) => {
+    const all = getAllSubmitted()
+    res.json({
+      total: all.length,
+      purchased: all.filter(a => a.status === 'purchased').length,
+      pending: all.filter(a => a.status === 'pending').length,
+      failed: all.filter(a => a.status === 'failed').length,
+      agents: all,
+    })
+  })
+
+  return router
+}

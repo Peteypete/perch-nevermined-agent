@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connect with Perch</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            perch: { 50: '#f0fdf6', 100: '#dcfce9', 200: '#bbf7d4', 300: '#86efad', 400: '#4ade7f', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+            sand: { 50: '#faf8f5', 100: '#f5f0e8', 200: '#e8dfd0', 300: '#d4c5a9', 400: '#bfa97e', 500: '#a08b5e', 600: '#8a7550', 700: '#6e5d42', 800: '#5c4e39', 900: '#4e4232' },
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .shimmer { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); background-size: 200% 100%; animation: shimmer 2s infinite; }
+  </style>
+</head>
+<body class="bg-sand-50 text-gray-800 min-h-screen">
+
+  <!-- Nav -->
+  <nav class="bg-white/80 backdrop-blur-md border-b border-sand-200 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-perch-500 to-perch-700 flex items-center justify-center text-white font-bold text-sm shadow-md">P</div>
+        <div>
+          <h1 class="text-lg font-bold text-gray-900 leading-tight">Perch</h1>
+          <p class="text-xs text-gray-400 -mt-0.5">Connect &amp; Trade</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="/" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-500 hover:text-gray-700 hover:bg-sand-100 transition-all">Seller</a>
+        <a href="/buyer/" class="px-4 py-2 text-sm font-medium rounded-lg text-gray-500 hover:text-gray-700 hover:bg-sand-100 transition-all">Buyer</a>
+        <span class="px-4 py-2 text-sm font-medium rounded-lg bg-perch-50 text-perch-700 border border-perch-200">Connect</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="bg-gradient-to-br from-perch-700 via-perch-800 to-perch-900 text-white py-16 relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
+      <div class="absolute bottom-10 right-10 w-96 h-96 bg-perch-400 rounded-full blur-3xl"></div>
+    </div>
+    <div class="max-w-4xl mx-auto text-center relative z-10 px-6">
+      <h2 class="text-4xl md:text-5xl font-extrabold mb-4">Connect with Perch</h2>
+      <p class="text-xl text-perch-200 mb-8">Submit your agent. We buy from you automatically.</p>
+      <div class="flex items-center justify-center gap-8">
+        <div class="text-center">
+          <div id="hero-connected" class="text-3xl font-bold">0</div>
+          <div class="text-sm text-perch-300">Agents Connected</div>
+        </div>
+        <div class="w-px h-12 bg-perch-600"></div>
+        <div class="text-center">
+          <div id="hero-purchased" class="text-3xl font-bold">0</div>
+          <div class="text-sm text-perch-300">Purchases Made</div>
+        </div>
+        <div class="w-px h-12 bg-perch-600"></div>
+        <div class="text-center">
+          <div class="text-3xl font-bold flex items-center gap-1">
+            <span class="w-3 h-3 rounded-full bg-green-400 pulse-dot inline-block"></span>
+            Live
+          </div>
+          <div class="text-sm text-perch-300">Auto-Buying</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Form -->
+  <section class="max-w-2xl mx-auto -mt-8 relative z-20 px-6 mb-16">
+    <div class="bg-white rounded-2xl shadow-xl border border-sand-200 p-8">
+      <h3 class="text-xl font-bold text-gray-900 mb-1">Submit Your Agent</h3>
+      <p class="text-sm text-gray-500 mb-6">Drop in your details and Perch will start buying from you within seconds.</p>
+
+      <div id="success-banner" class="hidden mb-6 p-4 rounded-lg bg-perch-50 border border-perch-200 text-perch-800 text-sm font-medium fade-in"></div>
+      <div id="error-banner" class="hidden mb-6 p-4 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm font-medium fade-in"></div>
+
+      <form id="agent-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Agent Name *</label>
+          <input type="text" id="f-name" required placeholder="AgentBroker — Research Intelligence Broker" class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm transition-all">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Plan ID *</label>
+            <input type="text" id="f-planId" required placeholder="did:nv:1985510228..." class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm mono transition-all">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Agent ID *</label>
+            <input type="text" id="f-agentId" required placeholder="did:nv:3861748222..." class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm mono transition-all">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Agent URL *</label>
+          <input type="text" id="f-url" required placeholder="https://your-agent.up.railway.app" class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm mono transition-all">
+          <p class="text-xs text-gray-400 mt-1">Must be publicly accessible. Use ngrok if running locally.</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Services *</label>
+          <textarea id="f-services" required rows="3" placeholder="/search (1cr), /google (1cr), /summarize (2cr), /research (5cr)" class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm mono transition-all resize-none"></textarea>
+          <p class="text-xs text-gray-400 mt-1">Format: /endpoint (credits), separated by commas</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+            <input type="text" id="f-submitter" placeholder="Team name or your name" class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm transition-all">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <input type="text" id="f-desc" placeholder="What does your agent do?" class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm transition-all">
+          </div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="w-full py-3 px-6 rounded-lg bg-gradient-to-r from-perch-600 to-perch-700 text-white font-semibold text-sm shadow-lg hover:shadow-xl hover:from-perch-500 hover:to-perch-600 transition-all active:scale-[0.98]">
+          Submit Agent
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Agent Wall -->
+  <section class="max-w-7xl mx-auto px-6 pb-20">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h3 class="text-2xl font-bold text-gray-900">Connected Agents</h3>
+        <p class="text-sm text-gray-500">Agents that have connected with Perch</p>
+      </div>
+      <div id="wall-count" class="px-3 py-1 rounded-full bg-perch-100 text-perch-700 text-sm font-semibold">0 agents</div>
+    </div>
+
+    <div id="agent-wall" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="col-span-full text-center py-12 text-gray-400">
+        <p class="text-lg mb-1">No agents connected yet</p>
+        <p class="text-sm">Be the first to submit your agent above!</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-sand-200 py-6">
+    <div class="max-w-7xl mx-auto px-6 text-center text-sm text-gray-400">
+      Perch Tax &amp; Finance Expert Agent &mdash; Nevermined Autonomous Business Hackathon
+    </div>
+  </footer>
+
+<script>
+const API = '/api/agents';
+
+// Parse services string: "/search (1cr), /google (1cr)" → [{path, credits}]
+function parseServices(text) {
+  const results = [];
+  const regex = /\/([\w\-\.]+)\s*\((\d+)\s*cr(?:edits?)?\)/gi;
+  let m;
+  while ((m = regex.exec(text)) !== null) {
+    results.push({ path: '/' + m[1], credits: parseInt(m[2]) });
+  }
+  return results;
+}
+
+// Submit form
+document.getElementById('agent-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('submit-btn');
+  const success = document.getElementById('success-banner');
+  const error = document.getElementById('error-banner');
+  success.classList.add('hidden');
+  error.classList.add('hidden');
+
+  const servicesText = document.getElementById('f-services').value;
+  const services = parseServices(servicesText);
+
+  if (services.length === 0) {
+    error.textContent = 'Could not parse services. Use format: /endpoint (1cr), /other (2cr)';
+    error.classList.remove('hidden');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  try {
+    const resp = await fetch(API + '/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: document.getElementById('f-name').value,
+        planId: document.getElementById('f-planId').value,
+        agentId: document.getElementById('f-agentId').value,
+        url: document.getElementById('f-url').value,
+        services,
+        submitterName: document.getElementById('f-submitter').value || undefined,
+        description: document.getElementById('f-desc').value || undefined,
+      }),
+    });
+
+    const data = await resp.json();
+
+    if (resp.ok) {
+      success.innerHTML = `<strong>${data.agent.name}</strong> connected! ${data.autoPurchase ? 'Auto-purchase in progress...' : 'We\'ll start buying soon.'}`;
+      success.classList.remove('hidden');
+      document.getElementById('agent-form').reset();
+      refreshWall();
+    } else {
+      error.textContent = data.message || data.error || 'Submission failed';
+      error.classList.remove('hidden');
+    }
+  } catch (err) {
+    error.textContent = 'Network error: ' + err.message;
+    error.classList.remove('hidden');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Submit Agent';
+});
+
+// Render agent wall
+function renderAgent(agent) {
+  const statusColors = {
+    pending: 'bg-amber-100 text-amber-800 border-amber-200',
+    purchased: 'bg-perch-100 text-perch-800 border-perch-200',
+    failed: 'bg-red-100 text-red-800 border-red-200',
+  };
+  const statusIcons = {
+    pending: `<svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>`,
+    purchased: `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>`,
+    failed: `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>`,
+  };
+
+  const services = (agent.services || []).map(s =>
+    `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-sand-100 text-sand-700 text-xs mono">${s.path} <span class="text-perch-600 font-semibold">${s.credits}cr</span></span>`
+  ).join(' ');
+
+  const pr = agent.purchaseResult;
+  const resultHtml = pr ? `
+    <div class="mt-3 pt-3 border-t border-sand-100 flex items-center gap-4 text-xs text-gray-500">
+      <span>Response: <strong class="text-gray-700">${pr.responseTimeMs}ms</strong></span>
+      <span>Satisfaction: <strong class="${pr.satisfactionScore > 70 ? 'text-perch-600' : pr.satisfactionScore > 40 ? 'text-amber-600' : 'text-red-600'}">${pr.satisfactionScore}/100</strong></span>
+      ${pr.error ? `<span class="text-red-500 truncate max-w-[150px]" title="${pr.error}">${pr.error}</span>` : ''}
+    </div>
+  ` : '';
+
+  const time = new Date(agent.submittedAt).toLocaleTimeString();
+
+  return `
+    <div class="bg-white rounded-xl border border-sand-200 p-5 hover:shadow-lg transition-all fade-in relative">
+      <div class="absolute top-4 right-4">
+        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${statusColors[agent.status]}">
+          ${statusIcons[agent.status]} ${agent.status}
+        </span>
+      </div>
+
+      <h4 class="text-base font-bold text-gray-900 pr-24 mb-1 leading-snug">${agent.name}</h4>
+      ${agent.submitterName && agent.submitterName !== 'Anonymous' ? `<p class="text-xs text-gray-400 mb-2">by ${agent.submitterName}</p>` : ''}
+      ${agent.description ? `<p class="text-sm text-gray-500 mb-3 line-clamp-2">${agent.description}</p>` : '<div class="mb-3"></div>'}
+
+      <div class="flex flex-wrap gap-1.5 mb-3">${services}</div>
+
+      <div class="flex items-center gap-3 text-xs text-gray-400 mono">
+        <span title="${agent.agentId}">ID: ${agent.agentId.slice(0, 20)}...</span>
+        <span>${time}</span>
+      </div>
+
+      ${resultHtml}
+    </div>
+  `;
+}
+
+async function refreshWall() {
+  try {
+    const resp = await fetch(API + '/submitted');
+    const data = await resp.json();
+
+    document.getElementById('hero-connected').textContent = data.total;
+    document.getElementById('hero-purchased').textContent = data.purchased;
+    document.getElementById('wall-count').textContent = `${data.total} agent${data.total !== 1 ? 's' : ''}`;
+
+    const wall = document.getElementById('agent-wall');
+    if (data.agents.length === 0) {
+      wall.innerHTML = `
+        <div class="col-span-full text-center py-12 text-gray-400">
+          <p class="text-lg mb-1">No agents connected yet</p>
+          <p class="text-sm">Be the first to submit your agent above!</p>
+        </div>
+      `;
+    } else {
+      wall.innerHTML = data.agents.map(renderAgent).join('');
+    }
+  } catch (err) {
+    console.error('Failed to refresh wall:', err);
+  }
+}
+
+// Initial load + auto-refresh
+refreshWall();
+setInterval(refreshWall, 5000);
+</script>
+</body>
+</html>
