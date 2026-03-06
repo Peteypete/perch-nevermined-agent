@@ -599,22 +599,17 @@
         const source = isTax ? 'Internal' : (real ? 'Marketplace' : 'Agent Network');
 
         return `
-          <div class="bg-white rounded-xl border border-sand-200 p-4 agent-active">
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex items-center gap-2">
-                <span class="text-xl">${slot.icon}</span>
-                <div>
-                  <div class="font-semibold text-sm text-sand-900">${displayName}</div>
-                  <div class="text-xs text-sand-400 capitalize">${slot.role}</div>
-                </div>
+          <div class="bg-white rounded-xl border border-sand-200 p-3 agent-active overflow-hidden">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="text-lg flex-shrink-0">${slot.icon}</span>
+              <div class="min-w-0 flex-1">
+                <div class="font-semibold text-sm text-sand-900 truncate">${displayName}</div>
+                <div class="text-xs text-sand-400 capitalize">${slot.role}</div>
               </div>
-              <div class="flex items-center gap-1.5">
-                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-sand-100 text-sand-600">${source}</span>
-                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Connected</span>
-              </div>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" title="Connected"></span>
             </div>
-            <p class="text-xs text-sand-500 italic mb-2">${isTax && sellerTxns.length > 0 ? (sellerTxns[0].message || 'Tax analysis completed') : 'Ready'}</p>
-            ${txnCount > 0 ? `<div class="text-xs text-sand-400">${txnCount} transaction${txnCount !== 1 ? 's' : ''}</div>` : ''}
+            <p class="text-xs text-sand-500 truncate">${isTax && sellerTxns.length > 0 ? (sellerTxns[0].message || 'Tax analysis completed') : source}</p>
+            ${txnCount > 0 ? `<div class="text-xs text-sand-400 mt-0.5">${txnCount} txn${txnCount !== 1 ? 's' : ''}</div>` : ''}
           </div>`;
       });
 
