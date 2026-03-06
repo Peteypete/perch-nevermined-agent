@@ -83,6 +83,10 @@ export type QueryType =
   | 'expense_classify'
   | 'portfolio_report'
   | 'entity_recommendation'
+  | 'exchange_1031'
+  | 'state_relocation'
+  | 'international_analysis'
+  | 'transfer_pricing'
 
 export interface AnalysisRequest {
   query_type: QueryType
@@ -105,4 +109,8 @@ export const SERVICE_CATALOG: Record<QueryType, { credits: number; description: 
   expense_classify: { credits: 1, description: 'Classify an expense into tax-mapped account category' },
   portfolio_report: { credits: 5, description: 'Full portfolio financial health across all entities' },
   entity_recommendation: { credits: 3, description: 'Schedule E vs S-Corp entity structure analysis' },
+  exchange_1031: { credits: 4, description: '1031 like-kind exchange analysis with timeline, basis tracking, and boot calculation' },
+  state_relocation: { credits: 3, description: 'State tax relocation analysis comparing tax burden across US states for RE investors' },
+  international_analysis: { credits: 5, description: 'International real estate tax analysis — treaty benefits, FIRPTA, foreign tax credits' },
+  transfer_pricing: { credits: 5, description: 'Transfer pricing analysis for cross-border RE management entities and intercompany transactions' },
 }

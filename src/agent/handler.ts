@@ -9,6 +9,10 @@ import {
   classifyExpense,
   generatePortfolioReport,
   recommendEntityStructure,
+  analyze1031Exchange,
+  analyzeStateRelocation,
+  analyzeInternational,
+  analyzeTransferPricing,
 } from '../finance/analysis.js'
 import { generateNarrative } from './reasoning.js'
 import { rtdb } from '../firebase/config.js'
@@ -63,13 +67,33 @@ export async function handleAnalysisRequest(request: AnalysisRequest): Promise<A
       break
     }
 
+    case 'exchange_1031': {
+      data = await analyze1031Exchange(params)
+      break
+    }
+
+    case 'state_relocation': {
+      data = await analyzeStateRelocation(params)
+      break
+    }
+
+    case 'international_analysis': {
+      data = await analyzeInternational(params)
+      break
+    }
+
+    case 'transfer_pricing': {
+      data = await analyzeTransferPricing(params)
+      break
+    }
+
     default:
       throw new Error(`Unknown query_type: ${query_type}`)
   }
 
   // Generate narrative if requested or for complex queries
   let narrative: string | undefined
-  if (request.natural_language_query || ['portfolio_report', 'qbi_analysis', 'entity_recommendation'].includes(query_type)) {
+  if (request.natural_language_query || ['portfolio_report', 'qbi_analysis', 'entity_recommendation', 'exchange_1031', 'state_relocation', 'international_analysis', 'transfer_pricing'].includes(query_type)) {
     try {
       narrative = await generateNarrative(query_type, data, request.natural_language_query)
     } catch (err) {
