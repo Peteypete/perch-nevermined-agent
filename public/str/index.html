@@ -61,7 +61,7 @@
           <a href="/buyer/" class="px-3 py-1.5 rounded-lg text-sand-400 hover:text-white hover:bg-sand-800 transition-all">Buyer</a>
           <a href="/connect/" class="px-3 py-1.5 rounded-lg text-sand-400 hover:text-white hover:bg-sand-800 transition-all">Connect</a>
         </div>
-        <button id="demo-btn" onclick="startDemo()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-bold transition-all text-white">&#9654; Run Demo</button>
+        <button id="demo-btn" onclick="startDemo()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-bold transition-all text-white">&#9654; Monitor Agents</button>
       </div>
     </div>
   </nav>
@@ -733,7 +733,7 @@
       } else {
         badge.textContent = 'Powered by AI Agents';
         thinking.classList.add('hidden');
-        btn.innerHTML = '&#9654; Run Demo';
+        btn.innerHTML = '&#9654; Monitor Agents';
         btn.className = 'px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-sm font-bold transition-all text-white';
         btn.onclick = startDemo;
       }
