@@ -53,41 +53,99 @@
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section class="bg-gradient-to-br from-perch-700 via-perch-800 to-perch-900 text-white py-16 relative overflow-hidden">
+  <!-- Our Agent Card -->
+  <section class="bg-gradient-to-br from-perch-700 via-perch-800 to-perch-900 text-white pt-10 pb-16 relative overflow-hidden">
     <div class="absolute inset-0 opacity-10">
       <div class="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
       <div class="absolute bottom-10 right-10 w-96 h-96 bg-perch-400 rounded-full blur-3xl"></div>
     </div>
-    <div class="max-w-4xl mx-auto text-center relative z-10 px-6">
-      <h2 class="text-4xl md:text-5xl font-extrabold mb-4">Connect with Tallyfor AI</h2>
-      <p class="text-xl text-perch-200 mb-8">Submit your agent. We buy from you automatically.</p>
-      <div class="flex items-center justify-center gap-8 mb-10">
-        <div class="text-center">
-          <div id="hero-connected" class="text-3xl font-bold">0</div>
-          <div class="text-sm text-perch-300">Agents Connected</div>
-        </div>
-        <div class="w-px h-12 bg-perch-600"></div>
-        <div class="text-center">
-          <div id="hero-purchased" class="text-3xl font-bold">0</div>
-          <div class="text-sm text-perch-300">Purchases Made</div>
-        </div>
-        <div class="w-px h-12 bg-perch-600"></div>
-        <div class="text-center">
-          <div class="text-3xl font-bold flex items-center gap-1">
-            <span class="w-3 h-3 rounded-full bg-green-400 pulse-dot inline-block"></span>
-            Live
+    <div class="max-w-4xl mx-auto relative z-10 px-6">
+
+      <!-- Our Agent Details -->
+      <div class="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-6 mb-10">
+        <div class="flex items-center gap-3 mb-4">
+          <img src="/img/tallyfor-icon.png" alt="Tallyfor" class="w-10 h-10">
+          <div>
+            <h3 class="text-lg font-bold leading-tight">Tallyfor AI Tax & Finance Expert</h3>
+            <p class="text-sm text-perch-200">Our agent — share this with other teams!</p>
           </div>
-          <div class="text-sm text-perch-300">Auto-Buying</div>
         </div>
+        <div id="agent-card-fields" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+          <div class="bg-black/20 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-xs text-perch-300 font-medium">Plan ID</div>
+              <div id="card-planId" class="mono text-xs text-white truncate">Loading...</div>
+            </div>
+            <button onclick="copyField('card-planId')" class="shrink-0 p-1.5 rounded-md hover:bg-white/10 transition-colors" title="Copy">
+              <svg class="w-4 h-4 text-perch-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+            </button>
+          </div>
+          <div class="bg-black/20 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-xs text-perch-300 font-medium">Agent ID</div>
+              <div id="card-agentId" class="mono text-xs text-white truncate">Loading...</div>
+            </div>
+            <button onclick="copyField('card-agentId')" class="shrink-0 p-1.5 rounded-md hover:bg-white/10 transition-colors" title="Copy">
+              <svg class="w-4 h-4 text-perch-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+            </button>
+          </div>
+          <div class="bg-black/20 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-xs text-perch-300 font-medium">URL</div>
+              <div id="card-url" class="mono text-xs text-white truncate">Loading...</div>
+            </div>
+            <button onclick="copyField('card-url')" class="shrink-0 p-1.5 rounded-md hover:bg-white/10 transition-colors" title="Copy">
+              <svg class="w-4 h-4 text-perch-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+            </button>
+          </div>
+          <div class="bg-black/20 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="text-xs text-perch-300 font-medium">Services</div>
+              <div id="card-services" class="mono text-xs text-white truncate">/analyze (1cr)</div>
+            </div>
+            <button onclick="copyField('card-services')" class="shrink-0 p-1.5 rounded-md hover:bg-white/10 transition-colors" title="Copy">
+              <svg class="w-4 h-4 text-perch-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+            </button>
+          </div>
+        </div>
+        <button onclick="copyAllAgentInfo()" class="mt-4 px-4 py-2 rounded-lg bg-white/20 hover:bg-white/30 text-sm font-medium transition-all flex items-center gap-2 mx-auto">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke-width="2"/></svg>
+          Copy All Agent Info
+        </button>
+        <div id="copy-toast" class="hidden mt-2 text-center text-xs text-perch-300 font-medium fade-in">Copied to clipboard!</div>
       </div>
 
-      <!-- QR Code -->
-      <div class="flex flex-col items-center">
-        <button id="qr-small" onclick="document.getElementById('qr-modal').classList.remove('hidden')" class="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer group">
-          <div id="qr-canvas" class="w-36 h-36 flex items-center justify-center"></div>
-        </button>
-        <p class="text-sm text-perch-300 mt-3">Scan to connect</p>
+      <!-- Stats + QR -->
+      <div class="text-center">
+        <h2 class="text-4xl md:text-5xl font-extrabold mb-4">Connect with Tallyfor AI</h2>
+        <p class="text-xl text-perch-200 mb-8">Submit your agent. We buy from you automatically.</p>
+        <div class="flex items-center justify-center gap-8 mb-10">
+          <div class="text-center">
+            <div id="hero-connected" class="text-3xl font-bold">0</div>
+            <div class="text-sm text-perch-300">Agents Connected</div>
+          </div>
+          <div class="w-px h-12 bg-perch-600"></div>
+          <div class="text-center">
+            <div id="hero-purchased" class="text-3xl font-bold">0</div>
+            <div class="text-sm text-perch-300">Purchases Made</div>
+          </div>
+          <div class="w-px h-12 bg-perch-600"></div>
+          <div class="text-center">
+            <div class="text-3xl font-bold flex items-center gap-1">
+              <span class="w-3 h-3 rounded-full bg-green-400 pulse-dot inline-block"></span>
+              Live
+            </div>
+            <div class="text-sm text-perch-300">Auto-Buying</div>
+          </div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="flex flex-col items-center">
+          <button id="qr-small" onclick="document.getElementById('qr-modal').classList.remove('hidden')" class="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer group">
+            <div id="qr-canvas" class="w-36 h-36 flex items-center justify-center"></div>
+          </button>
+          <p class="text-sm text-perch-300 mt-3">Scan to connect</p>
+        </div>
       </div>
     </div>
   </section>
@@ -96,11 +154,12 @@
   <div id="qr-modal" class="hidden fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6" onclick="this.classList.add('hidden')">
     <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl fade-in" onclick="event.stopPropagation()">
       <img src="/img/tallyfor-icon.png" alt="Tallyfor" class="w-16 h-16 mx-auto mb-4">
-      <h3 class="text-xl font-bold text-gray-900 mb-1">Connect with Tallyfor AI</h3>
-      <p class="text-sm text-gray-500 mb-6">Scan to submit your agent</p>
-      <div id="qr-canvas-large" class="flex items-center justify-center mx-auto mb-6"></div>
-      <p class="text-xs text-gray-400 mono break-all" id="qr-url-display"></p>
-      <button onclick="document.getElementById('qr-modal').classList.add('hidden')" class="mt-6 px-6 py-2 rounded-lg bg-sand-100 text-gray-600 text-sm font-medium hover:bg-sand-200 transition-all">Close</button>
+      <h3 class="text-xl font-bold text-gray-900 mb-1">Tallyfor AI Agent Details</h3>
+      <p class="text-sm text-gray-500 mb-4">Scan or copy our agent info</p>
+      <div id="qr-canvas-large" class="flex items-center justify-center mx-auto mb-4"></div>
+      <div id="modal-agent-text" class="text-left bg-sand-50 rounded-xl p-4 mono text-xs text-gray-700 space-y-1 mb-4"></div>
+      <button onclick="copyAllAgentInfo()" class="px-5 py-2 rounded-lg bg-perch-600 text-white text-sm font-medium hover:bg-perch-500 transition-all">Copy All</button>
+      <button onclick="document.getElementById('qr-modal').classList.add('hidden')" class="ml-2 px-5 py-2 rounded-lg bg-sand-100 text-gray-600 text-sm font-medium hover:bg-sand-200 transition-all">Close</button>
     </div>
   </div>
 
@@ -207,6 +266,52 @@ Services: /search (1cr), /google (1cr), /summarize (2cr)" class="w-full px-4 py-
 
 <script>
 const API = '/api/agents';
+let agentCard = null;
+
+// ============================================================================
+// Agent Card — load our details and populate
+// ============================================================================
+
+async function loadAgentCard() {
+  try {
+    const r = await fetch('/api/agent-card');
+    if (!r.ok) return;
+    agentCard = await r.json();
+    document.getElementById('card-planId').textContent = agentCard.planId;
+    document.getElementById('card-agentId').textContent = agentCard.agentId;
+    document.getElementById('card-url').textContent = agentCard.url;
+    document.getElementById('card-services').textContent = agentCard.services;
+
+    // Populate modal text
+    document.getElementById('modal-agent-text').innerHTML =
+      `<div><strong>Name:</strong> ${agentCard.name}</div>` +
+      `<div><strong>Plan ID:</strong> ${agentCard.planId}</div>` +
+      `<div><strong>Agent ID:</strong> ${agentCard.agentId}</div>` +
+      `<div><strong>URL:</strong> ${agentCard.url}</div>` +
+      `<div><strong>Services:</strong> ${agentCard.services}</div>`;
+  } catch {}
+}
+
+function copyField(id) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text);
+  showCopyToast();
+}
+
+function copyAllAgentInfo() {
+  if (!agentCard) return;
+  const text = `${agentCard.name}\nPlan ID: ${agentCard.planId}\nAgent ID: ${agentCard.agentId}\nURL: ${agentCard.url}\nServices: ${agentCard.services}`;
+  navigator.clipboard.writeText(text);
+  showCopyToast();
+}
+
+function showCopyToast() {
+  const toast = document.getElementById('copy-toast');
+  toast.classList.remove('hidden');
+  setTimeout(() => toast.classList.add('hidden'), 2000);
+}
+
+loadAgentCard();
 
 // ============================================================================
 // Quick Paste Parser
@@ -449,13 +554,12 @@ setInterval(refreshWall, 5000);
 (() => {
   const url = window.location.href.replace(/\/$/, '') + '/';
   const encoded = encodeURIComponent(url);
-  document.getElementById('qr-url-display').textContent = url;
 
-  // Small QR in hero
+  // Small QR in hero — links to this connect page
   document.getElementById('qr-canvas').innerHTML =
     `<img src="https://api.qrserver.com/v1/create-qr-code/?size=144x144&color=115e59&bgcolor=ffffff&data=${encoded}" alt="QR" class="rounded-xl" width="144" height="144">`;
 
-  // Large QR in modal
+  // Large QR in modal — same page so they can see + copy agent details
   document.getElementById('qr-canvas-large').innerHTML =
     `<img src="https://api.qrserver.com/v1/create-qr-code/?size=280x280&color=134e4a&bgcolor=ffffff&data=${encoded}" alt="QR" class="rounded-2xl" width="280" height="280">`;
 })();

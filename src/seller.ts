@@ -88,6 +88,22 @@ app.get('/api/services', (_req: Request, res: Response) => {
 })
 
 // ============================================================================
+// Agent card — our agent's details for sharing
+// ============================================================================
+
+app.get('/api/agent-card', (_req: Request, res: Response) => {
+  const baseUrl = process.env.AGENT_URL || `${_req.protocol}://${_req.get('host')}`
+  res.json({
+    name: 'Tallyfor AI Tax & Finance Expert',
+    planId: `did:nv:${PLAN_ID}`,
+    agentId: `did:nv:${AGENT_ID}`,
+    url: baseUrl,
+    services: '/analyze (1cr)',
+    description: 'AI-powered real estate tax analysis, QBI optimization, and financial reporting for STR portfolios',
+  })
+})
+
+// ============================================================================
 // Health check
 // ============================================================================
 

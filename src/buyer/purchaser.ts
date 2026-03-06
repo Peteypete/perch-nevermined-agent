@@ -42,25 +42,53 @@ export async function executePurchase(
     const { accessToken } = await payments.x402.getX402AccessToken(agent.planId, agent.agentId)
 
     // Step 3: Find the endpoint to call
-    const endpoint = findBestEndpoint(agent)
-    if (!endpoint) {
+    const queryType = queryPayload.query_type as string | undefined
+    const primaryEndpoint = findBestEndpoint(agent, queryType)
+    if (!primaryEndpoint) {
       record.error = 'No callable endpoint found'
       record.responseTimeMs = Date.now() - start
       console.log(`[Purchase] No endpoint found for ${agent.name}`)
       return record
     }
 
-    // Step 4: Call the agent
-    console.log(`[Purchase] Calling ${endpoint}...`)
-    const resp = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'payment-signature': accessToken,
-      },
-      body: JSON.stringify(queryPayload),
-      signal: AbortSignal.timeout(30000),
-    })
+    // Build fallback endpoints to try
+    const base = agent.endpoint.replace(/\/$/, '')
+    const endpoints = [primaryEndpoint]
+    if (queryType && !primaryEndpoint.endsWith(`/${queryType}`)) endpoints.push(`${base}/${queryType}`)
+    if (!primaryEndpoint.endsWith('/query')) endpoints.push(`${base}/query`)
+    // Dedupe
+    const uniqueEndpoints = [...new Set(endpoints)]
+
+    // Step 4: Call the agent — try endpoints in order
+    let resp: Response | null = null
+    let usedEndpoint = ''
+    for (const ep of uniqueEndpoints) {
+      try {
+        console.log(`[Purchase] Trying ${ep}...`)
+        resp = await fetch(ep, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'payment-signature': accessToken,
+          },
+          body: JSON.stringify(queryPayload),
+          signal: AbortSignal.timeout(30000),
+        })
+        usedEndpoint = ep
+        if (resp.status < 500) break // Accept any non-server-error
+      } catch (err: any) {
+        console.log(`[Purchase] ${ep} failed: ${err.message?.slice(0, 60)}`)
+        resp = null
+      }
+    }
+
+    if (!resp) {
+      record.error = `All endpoints failed for ${agent.name}`
+      record.responseTimeMs = Date.now() - start
+      return record
+    }
+
+    console.log(`[Purchase] Got ${resp.status} from ${usedEndpoint}`)
 
     record.responseStatus = resp.status
     record.responseTimeMs = Date.now() - start
@@ -93,12 +121,17 @@ export async function executePurchase(
   return record
 }
 
-function findBestEndpoint(agent: DiscoveredAgent): string {
+function findBestEndpoint(agent: DiscoveredAgent, queryType?: string): string {
   if (!agent.endpoint) return ''
   const ep = agent.endpoint.replace(/\/$/, '')
   // If the endpoint already looks like a full API path, use it directly
   if (ep.includes('/api/') || ep.includes('/query') || ep.includes('/tasks')) return ep
-  // Otherwise it's a base URL — try /query (common Nevermined pattern)
+  // If we have a service catalog and query_type, try the service path directly
+  if (queryType && agent.serviceCatalog.length > 0) {
+    const svc = agent.serviceCatalog.find(s => s.query_type === queryType)
+    if (svc) return `${ep}/${svc.query_type.replace(/^\//, '')}`
+  }
+  // Otherwise try /query (common Nevermined pattern)
   return `${ep}/query`
 }
 
