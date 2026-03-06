@@ -59,7 +59,7 @@
     <div class="max-w-4xl mx-auto text-center relative z-10 px-6">
       <h2 class="text-4xl md:text-5xl font-extrabold mb-4">Connect with Perch</h2>
       <p class="text-xl text-perch-200 mb-8">Submit your agent. We buy from you automatically.</p>
-      <div class="flex items-center justify-center gap-8">
+      <div class="flex items-center justify-center gap-8 mb-10">
         <div class="text-center">
           <div id="hero-connected" class="text-3xl font-bold">0</div>
           <div class="text-sm text-perch-300">Agents Connected</div>
@@ -78,8 +78,28 @@
           <div class="text-sm text-perch-300">Auto-Buying</div>
         </div>
       </div>
+
+      <!-- QR Code -->
+      <div class="flex flex-col items-center">
+        <button id="qr-small" onclick="document.getElementById('qr-modal').classList.remove('hidden')" class="bg-white rounded-2xl p-3 shadow-xl hover:shadow-2xl transition-all hover:scale-105 cursor-pointer group">
+          <div id="qr-canvas" class="w-36 h-36 flex items-center justify-center"></div>
+        </button>
+        <p class="text-sm text-perch-300 mt-3">Scan to connect</p>
+      </div>
     </div>
   </section>
+
+  <!-- QR Fullscreen Modal -->
+  <div id="qr-modal" class="hidden fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-6" onclick="this.classList.add('hidden')">
+    <div class="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl fade-in" onclick="event.stopPropagation()">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-perch-500 to-perch-700 flex items-center justify-center text-white font-bold text-2xl shadow-lg mx-auto mb-4">P</div>
+      <h3 class="text-xl font-bold text-gray-900 mb-1">Connect with Perch</h3>
+      <p class="text-sm text-gray-500 mb-6">Scan to submit your agent</p>
+      <div id="qr-canvas-large" class="flex items-center justify-center mx-auto mb-6"></div>
+      <p class="text-xs text-gray-400 mono break-all" id="qr-url-display"></p>
+      <button onclick="document.getElementById('qr-modal').classList.add('hidden')" class="mt-6 px-6 py-2 rounded-lg bg-sand-100 text-gray-600 text-sm font-medium hover:bg-sand-200 transition-all">Close</button>
+    </div>
+  </div>
 
   <!-- Form -->
   <section class="max-w-2xl mx-auto -mt-8 relative z-20 px-6 mb-16">
@@ -416,6 +436,43 @@ async function refreshWall() {
 // Initial load + auto-refresh
 refreshWall();
 setInterval(refreshWall, 5000);
+
+// ============================================================================
+// QR Code Generation
+// ============================================================================
+
+(async () => {
+  // Load QRCode library
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js';
+  script.onload = () => {
+    const url = window.location.href.replace(/\/$/, '') + '/';
+    document.getElementById('qr-url-display').textContent = url;
+
+    // Small QR in hero
+    QRCode.toCanvas(document.createElement('canvas'), url, {
+      width: 144, margin: 1, color: { dark: '#166534', light: '#ffffff' }
+    }, (err, canvas) => {
+      if (!err) {
+        canvas.style.borderRadius = '12px';
+        document.getElementById('qr-canvas').innerHTML = '';
+        document.getElementById('qr-canvas').appendChild(canvas);
+      }
+    });
+
+    // Large QR in modal
+    QRCode.toCanvas(document.createElement('canvas'), url, {
+      width: 280, margin: 2, color: { dark: '#14532d', light: '#ffffff' }
+    }, (err, canvas) => {
+      if (!err) {
+        canvas.style.borderRadius = '16px';
+        document.getElementById('qr-canvas-large').innerHTML = '';
+        document.getElementById('qr-canvas-large').appendChild(canvas);
+      }
+    });
+  };
+  document.head.appendChild(script);
+})();
 </script>
 </body>
 </html>
