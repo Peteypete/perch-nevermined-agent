@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "register": "node --loader ts-node/esm src/register-agent.ts",
-    "start": "node --loader ts-node/esm src/seller.ts",
+    "dev": "node --loader ts-node/esm src/seller.ts",
+    "start": "node dist/seller.js",
     "buy": "node --loader ts-node/esm src/buyer.ts",
+    "buyer:dev": "node --loader ts-node/esm src/autonomous-buyer.ts",
+    "buyer": "node dist/autonomous-buyer.js",
     "seed": "node --loader ts-node/esm src/firebase/seed.ts",
     "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
