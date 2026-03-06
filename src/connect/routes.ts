@@ -15,13 +15,14 @@ interface SubmittedService {
 
 interface AgentSubmission {
   name: string
-  planId?: string   // optional for direct submissions
-  agentId?: string  // optional for direct submissions
+  planId?: string
+  agentId?: string
   url: string
   services: SubmittedService[]
   submitterName?: string
   description?: string
   buyType?: 'nevermined' | 'direct'
+  customBody?: Record<string, unknown>
 }
 
 interface SubmittedAgent {
@@ -35,6 +36,7 @@ interface SubmittedAgent {
   description: string
   submittedAt: string
   buyType: 'nevermined' | 'direct'
+  customBody?: Record<string, unknown>
   status: 'pending' | 'purchased' | 'failed'
   purchaseResult?: {
     success: boolean
@@ -69,6 +71,7 @@ function saveAgent(submission: AgentSubmission): SubmittedAgent {
     description: submission.description?.trim() || '',
     submittedAt: new Date().toISOString(),
     buyType,
+    customBody: submission.customBody,
     status: 'pending',
   }
   agents.set(id, agent)
@@ -110,6 +113,7 @@ export function toDiscoveredAgent(submitted: SubmittedAgent): DiscoveredAgent {
     endpoint: submitted.url,
     creditsPerPlan: 100,
     buyType: submitted.buyType,
+    customBody: submitted.customBody,
     serviceCatalog: submitted.services.map(s => ({
       query_type: s.path.replace(/^\//, ''),
       credits: s.credits,

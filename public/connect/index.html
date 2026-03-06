@@ -221,6 +221,13 @@ Services: /search (1cr), /google (1cr), /summarize (2cr)" class="w-full px-4 py-
           <p id="url-hint" class="text-xs text-gray-400 mt-1">The POST endpoint Tallyfor AI will call to buy your service.</p>
         </div>
 
+        <!-- Direct URL: custom request body -->
+        <div id="direct-body-field" class="">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Request Body <span class="text-gray-400 font-normal">(JSON — what to send when buying)</span></label>
+          <textarea id="f-customBody" rows="9" placeholder='Leave empty to use default, or paste the exact JSON your endpoint expects:&#10;{&#10;  "message": "Run a test job",&#10;  "customerName": "Tallyfor AI",&#10;  "contact": "hello@tallyfor.ai",&#10;  "jobType": "inference",&#10;  "command": ["python", "-c", "print(&#39;hello&#39;)"],&#10;  "inputNotes": "Test run",&#10;  "expectedOutput": "hello"&#10;}' class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm mono transition-all resize-none"></textarea>
+          <p id="f-customBody-error" class="hidden text-xs text-red-500 mt-1">Invalid JSON</p>
+        </div>
+
         <!-- Direct URL: seller endpoint hint -->
         <div id="direct-endpoint-hint" class="p-3 rounded-lg bg-sand-100 text-xs text-gray-600 mono">
           We'll POST to: <span id="preview-endpoint" class="text-perch-700 font-semibold">https://your-agent.up.railway.app/api/analyze</span>
@@ -228,8 +235,8 @@ Services: /search (1cr), /google (1cr), /summarize (2cr)" class="w-full px-4 py-
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Services *</label>
-          <textarea id="f-services" required rows="2" placeholder="/analyze (2cr), /report (5cr)" class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm mono transition-all resize-none"></textarea>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Services <span class="text-gray-400 font-normal">(optional)</span></label>
+          <textarea id="f-services" rows="2" placeholder="/analyze (2cr), /report (5cr)" class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 focus:border-perch-500 text-sm mono transition-all resize-none"></textarea>
           <p class="text-xs text-gray-400 mt-1">Format: /endpoint (credits), separated by commas</p>
         </div>
 
@@ -275,7 +282,8 @@ Services: /search (1cr), /google (1cr), /summarize (2cr)" class="w-full px-4 py-
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Request Body <span class="text-gray-400 font-normal">(JSON — paste their expected format)</span></label>
-          <textarea id="test-body" rows="10" class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 text-sm mono transition-all resize-none">{
+          <textarea id="test-body" rows="11" class="w-full px-4 py-2.5 rounded-lg border border-sand-200 bg-sand-50 focus:outline-none focus:ring-2 focus:ring-perch-500 text-sm mono transition-all resize-none">{
+  "message": "Run a test job",
   "customerName": "Tallyfor AI",
   "contact": "hello@tallyfor.ai",
   "jobType": "inference",
@@ -547,21 +555,32 @@ document.getElementById('agent-form').addEventListener('submit', async (e) => {
   const servicesText = document.getElementById('f-services').value;
   const services = parseServices(servicesText);
 
-  if (services.length === 0) {
-    error.textContent = 'Could not parse services. Use format: /endpoint (1cr), /other (2cr)';
-    error.classList.remove('hidden');
-    return;
-  }
-
   btn.disabled = true;
   btn.textContent = 'Submitting...';
+
+  // Parse optional custom body
+  let customBody;
+  if (currentTab === 'direct') {
+    const rawBody = document.getElementById('f-customBody').value.trim();
+    if (rawBody) {
+      try {
+        customBody = JSON.parse(rawBody);
+        document.getElementById('f-customBody-error').classList.add('hidden');
+      } catch {
+        document.getElementById('f-customBody-error').classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Submit Agent';
+        return;
+      }
+    }
+  }
 
   try {
     const isNvm = currentTab === 'nevermined';
     const body = {
       name: document.getElementById('f-name').value,
       url: document.getElementById('f-url').value,
-      services,
+      services: services.length > 0 ? services : [{ path: '/query', credits: 1 }],
       buyType: currentTab,
       submitterName: document.getElementById('f-submitter').value || undefined,
       description: document.getElementById('f-desc').value || undefined,
@@ -569,6 +588,7 @@ document.getElementById('agent-form').addEventListener('submit', async (e) => {
         planId: document.getElementById('f-planId').value,
         agentId: document.getElementById('f-agentId').value,
       } : {}),
+      ...(customBody ? { customBody } : {}),
     };
     const resp = await fetch(API + '/submit', {
       method: 'POST',

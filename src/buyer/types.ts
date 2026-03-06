@@ -10,6 +10,7 @@ export interface DiscoveredAgent {
   creditsPerPlan: number    // credits granted when ordering plan
   serviceCatalog: ServiceInfo[]
   buyType: 'nevermined' | 'direct'  // nevermined = x402 token flow, direct = POST straight to URL
+  customBody?: Record<string, unknown> // custom request body for direct agents
 }
 
 export interface ServiceInfo {

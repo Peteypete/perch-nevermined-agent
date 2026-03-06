@@ -45,9 +45,10 @@ async function runAutonomousCycle() {
     discoveredAgents = await discoverAgents(payments)
     lastDiscovery = new Date().toISOString()
 
-    // Inject community-submitted agents
+    // Inject community-submitted agents (skip permanently failed ones)
     const submitted = getAllSubmitted()
     for (const sa of submitted) {
+      if (sa.status === 'failed') continue
       const da = toDiscoveredAgent(sa)
       if (!discoveredAgents.find(a => a.agentId === da.agentId)) {
         discoveredAgents.push(da)
@@ -187,7 +188,7 @@ export async function purchaseFromSubmitted(
     return { success: false, responseTimeMs: 0, satisfactionScore: 0, error: 'Budget exhausted' }
   }
 
-  const query = customBody || buildQuery(agent)
+  const query = customBody || agent.customBody || buildQuery(agent)
   const record = await executePurchase(payments, agent, query)
   budget.recordPurchase(record)
 
